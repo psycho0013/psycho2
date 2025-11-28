@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, Edit2, X } from 'lucide-react';
-import type { Disease, Treatment } from '@/types/medical';
+import type { Disease, Treatment, Symptom } from '@/types/medical';
 import DbManager from '@/services/dbManager';
 
 const DiseasesManager = () => {
     const [diseasesList, setDiseasesList] = useState<Disease[]>([]);
     const [availableTreatments, setAvailableTreatments] = useState<Treatment[]>([]);
+    const [availableSymptoms, setAvailableSymptoms] = useState<Symptom[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Partial<Disease>>({
@@ -24,12 +25,14 @@ const DiseasesManager = () => {
     }, []);
 
     const loadData = async () => {
-        const [diseases, treatments] = await Promise.all([
+        const [diseases, treatments, symptoms] = await Promise.all([
             DbManager.getDiseases(),
-            DbManager.getTreatments()
+            DbManager.getTreatments(),
+            DbManager.getSymptoms()
         ]);
         setDiseasesList(diseases);
         setAvailableTreatments(treatments);
+        setAvailableSymptoms(symptoms);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -149,6 +152,38 @@ const DiseasesManager = () => {
                             />
                         </div>
 
+                        {/* Symptoms Selection */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">الأعراض الشائعة</label>
+                            <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 max-h-60 overflow-y-auto space-y-2">
+                                {availableSymptoms.length === 0 ? (
+                                    <p className="text-sm text-slate-500 text-center py-4">لا توجد أعراض مسجلة. يرجى إضافتها من صفحة إدارة الأعراض.</p>
+                                ) : (
+                                    availableSymptoms.map((symptom) => (
+                                        <label key={symptom.id} className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-slate-50 cursor-pointer border border-slate-100">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.symptoms?.includes(symptom.id)}
+                                                onChange={(e) => {
+                                                    const currentSymptoms = formData.symptoms || [];
+                                                    if (e.target.checked) {
+                                                        setFormData({ ...formData, symptoms: [...currentSymptoms, symptom.id] });
+                                                    } else {
+                                                        setFormData({ ...formData, symptoms: currentSymptoms.filter(id => id !== symptom.id) });
+                                                    }
+                                                }}
+                                                className="w-4 h-4 text-primary rounded focus:ring-2 focus:ring-primary/20"
+                                            />
+                                            <div className="flex-1">
+                                                <span className="font-medium text-slate-700">{symptom.name}</span>
+                                                <span className="text-xs text-slate-400 mr-2">({symptom.category})</span>
+                                            </div>
+                                        </label>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">طرق الوقاية</label>
                             {formData.prevention?.map((item, idx) => (
@@ -202,6 +237,35 @@ const DiseasesManager = () => {
                                 className="text-sm text-primary hover:underline"
                             >
                                 + إضافة سبب
+                            </button>
+                        </div>
+
+                        {/* Complications */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">المضاعفات المحتملة</label>
+                            {formData.complications?.map((item, idx) => (
+                                <div key={idx} className="flex gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        value={item}
+                                        onChange={(e) => updateArrayField('complications', idx, e.target.value)}
+                                        className="flex-1 px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeArrayItem('complications', idx)}
+                                        className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => addArrayItem('complications')}
+                                className="text-sm text-primary hover:underline"
+                            >
+                                + إضافة مضاعفات
                             </button>
                         </div>
 
@@ -269,9 +333,11 @@ const DiseasesManager = () => {
                                 <h3 className="text-lg font-bold text-slate-800 mb-2">{disease.name}</h3>
                                 <p className="text-slate-500 text-sm mb-3 line-clamp-2">{disease.description}</p>
                                 <div className="flex gap-2 text-xs text-slate-400">
-                                    <span>{disease.prevention.length} طرق وقاية</span>
+                                    <span>{disease.symptoms.length} أعراض</span>
                                     <span>•</span>
-                                    <span>{disease.causes.length} أسباب</span>
+                                    <span>{disease.treatments.length} علاجات</span>
+                                    <span>•</span>
+                                    <span>{disease.complications.length} مضاعفات</span>
                                 </div>
                             </div>
                             <div className="flex gap-2">
