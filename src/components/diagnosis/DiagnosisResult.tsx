@@ -39,40 +39,78 @@ const DiagnosisResult = ({ state }: Props) => {
         analyze();
     }, []);
 
-    const calculateDiagnosis = (diseases: Disease[]) => {
-        // Simple matching logic for demo
-        // Count matching symptoms for each disease
-        const allUserSymptoms = [
-            ...state.selectedSymptoms.map(s => s.id),
-            ...state.relatedSymptoms
-        ];
+    const calculateDiagnosis = async (diseases: Disease[]) => {
+        try {
+            // Fetch all symptoms to resolve names
+            const allSymptoms = await DbManager.getSymptoms();
 
-        let bestMatch = null;
-        let maxMatches = 0;
+            // Map selected symptom IDs to names
+            const symptomNames = state.selectedSymptoms.map(s => {
+                const symptom = allSymptoms.find(sym => sym.id === s.id);
+                return symptom ? symptom.name : s.id;
+            });
 
-        diseases.forEach(disease => {
-            // disease.symptoms is now an array of IDs (strings)
-            const matches = disease.symptoms.filter((sId: string) => allUserSymptoms.includes(sId)).length;
-            if (matches > maxMatches) {
-                maxMatches = matches;
-                bestMatch = disease;
+            // Also include related symptoms (which are just IDs in state.relatedSymptoms)
+            const relatedSymptomNames = state.relatedSymptoms.map(id => {
+                const symptom = allSymptoms.find(sym => sym.id === id);
+                return symptom ? symptom.name : id;
+            });
+
+            const allSymptomNames = [...symptomNames, ...relatedSymptomNames];
+
+            const response = await fetch('/api/diagnose', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    symptoms: allSymptomNames,
+                    age: state.personalInfo.age,
+                    gender: state.personalInfo.gender === 'male' ? 'Male' : 'Female',
+                    notes: `Weight: ${state.personalInfo.weight}, Height: ${state.personalInfo.height}, Chronic Diseases: ${state.vitals.chronicDiseases.join(', ')}`
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Diagnosis failed');
             }
-        });
 
-        const emergencyStatus = state.selectedSymptoms.some(s => s.severity === 'severe') ||
-            state.selectedSymptoms.some(s => ['chest_pain', 'shortness_of_breath'].includes(s.id));
+            const data = await response.json();
 
-        setIsEmergency(emergencyStatus);
+            // The API returns { diagnosis: [...], disclaimer: ... }
+            // We need to map the first diagnosis to our result format
+            // Ideally, we should match the disease name back to our database ID if we want to link treatments correctly.
+            // For now, let's try to find the disease in our local list by name.
 
-        if (bestMatch && maxMatches > 0) {
-            setResult(bestMatch);
-            // Save to real statistics
-            StatisticsManager.saveDiagnosis(state, bestMatch, emergencyStatus);
-        } else {
+            if (data.diagnosis && data.diagnosis.length > 0) {
+                const topDiagnosis = data.diagnosis[0];
+                const matchedDisease = diseases.find(d => d.name.toLowerCase() === topDiagnosis.disease_name.toLowerCase());
+
+                if (matchedDisease) {
+                    setResult(matchedDisease);
+
+                    const emergencyStatus = state.selectedSymptoms.some(s => s.severity === 'severe') ||
+                        state.selectedSymptoms.some(s => ['chest_pain', 'shortness_of_breath'].includes(s.id)); // Keep basic emergency check
+
+                    setIsEmergency(emergencyStatus);
+                    StatisticsManager.saveDiagnosis(state, matchedDisease, emergencyStatus);
+                } else {
+                    // AI found a disease but we don't have it in our DB exactly? 
+                    // Or maybe the name is slightly different.
+                    // For this MVP, let's fallback to "No match" if we can't link it to our DB, 
+                    // OR we could display the AI result directly even if not in DB (but then no treatments links).
+                    // Let's stick to DB matching for safety as requested "based ONLY on provided database".
+                    setResult(null);
+                    StatisticsManager.saveDiagnosis(state, null, false);
+                }
+            } else {
+                setResult(null);
+                StatisticsManager.saveDiagnosis(state, null, false);
+            }
+
+        } catch (error) {
+            console.error('Error calling diagnosis API:', error);
             setResult(null);
-            // Save failed diagnosis attempt too if needed, or just successful ones. 
-            // For now let's save even if null to track usage, but maybe with 'Undiagnosed' name
-            StatisticsManager.saveDiagnosis(state, null, emergencyStatus);
         }
     };
 
