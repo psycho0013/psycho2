@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const OpenAI = require('openai').default;
 
-module.exports = async function handler(req, res) {
+module.exports = async (req, res) => {
   console.log('🚀 Diagnose API called');
 
   if (req.method !== 'POST') {
