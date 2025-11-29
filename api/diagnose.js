@@ -1,7 +1,9 @@
-import { createClient } from '@supabase/supabase-js';
-import OpenAI from 'openai';
+const { createClient } = require('@supabase/supabase-js');
+const OpenAI = require('openai').default;
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
+  console.log('🚀 Diagnose API called');
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -17,31 +19,53 @@ export default async function handler(req, res) {
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
   const openaiKey = process.env.OPENAI_API_KEY;
 
+  console.log('📋 Environment Check:', {
+    hasSupabaseUrl: !!supabaseUrl,
+    hasSupabaseKey: !!supabaseKey,
+    hasOpenAI: !!openaiKey
+  });
+
   if (!supabaseUrl || !supabaseKey) {
-    console.error('Missing Supabase environment variables');
-    return res.status(500).json({ error: 'Server Configuration Error', details: 'Missing Supabase configuration' });
+    console.error('❌ Missing Supabase environment variables');
+    return res.status(500).json({
+      error: 'Server Configuration Error',
+      details: 'Missing Supabase configuration'
+    });
   }
 
   if (!openaiKey) {
-    console.error('Missing OpenAI API Key');
-    return res.status(500).json({ error: 'Server Configuration Error', details: 'Missing OpenAI API Key' });
+    console.error('❌ Missing OpenAI API Key');
+    return res.status(500).json({
+      error: 'Server Configuration Error',
+      details: 'Missing OpenAI API Key'
+    });
   }
 
   try {
+    console.log('🔌 Initializing Supabase...');
     // 1. Initialize Supabase
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    console.log('📊 Fetching diseases and symptoms from Supabase...');
     // 2. Fetch Context Data (Diseases & Symptoms)
     const [diseasesResult, symptomsResult] = await Promise.all([
       supabase.from('diseases').select('*'),
       supabase.from('symptoms').select('*')
     ]);
 
-    if (diseasesResult.error) throw diseasesResult.error;
-    if (symptomsResult.error) throw symptomsResult.error;
+    if (diseasesResult.error) {
+      console.error('❌ Supabase Error (diseases):', diseasesResult.error);
+      throw new Error('Failed to fetch diseases: ' + diseasesResult.error.message);
+    }
+    if (symptomsResult.error) {
+      console.error('❌ Supabase Error (symptoms):', symptomsResult.error);
+      throw new Error('Failed to fetch symptoms: ' + symptomsResult.error.message);
+    }
 
     const diseases = diseasesResult.data;
     const allSymptoms = symptomsResult.data;
+
+    console.log(`✅ Fetched ${diseases.length} diseases and ${allSymptoms.length} symptoms`);
 
     // 3. Construct Prompt
     // Map symptom IDs to names if needed, or just pass the names directly if frontend sends names.
@@ -90,9 +114,10 @@ export default async function handler(req, res) {
       5. DO NOT hallucinate diseases not in the database.
     `;
 
+    console.log('🤖 Calling OpenAI API...');
     // 4. Call OpenAI
     const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: openaiKey,
     });
 
     const completion = await openai.chat.completions.create({
@@ -101,12 +126,17 @@ export default async function handler(req, res) {
       response_format: { type: "json_object" },
     });
 
+    console.log('✅ OpenAI Response received');
     const result = JSON.parse(completion.choices[0].message.content);
 
     res.status(200).json(result);
 
   } catch (error) {
-    console.error('Diagnosis error:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+    console.error('❌ Diagnosis error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
-}
+};
