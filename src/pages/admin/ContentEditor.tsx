@@ -263,7 +263,7 @@ const ContentEditor = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">رابط الصورة (يدعم Google Drive)</label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">رابط الصورة (يدعم Google Drive و Cloudinary)</label>
                                     <div className="flex gap-4 items-start">
                                         <div className="flex-1">
                                             <input
@@ -275,7 +275,7 @@ const ContentEditor = () => {
                                                 placeholder="https://..."
                                             />
                                             <p className="text-xs text-slate-400 mt-1">
-                                                تأكد من أن مشاركة الصورة في جوجل درايف هي "عام" (Anyone with the link).
+                                                يدعم روابط Google Drive (تأكد أنها عامة) وروابط Cloudinary المباشرة.
                                             </p>
                                         </div>
                                         {content.about.developer.image && (
