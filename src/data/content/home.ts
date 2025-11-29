@@ -1,8 +1,8 @@
 export const homeContent = {
     hero: {
         badge: "مساعد صحي ذكي بالذكاء الاصطناعي",
-        title: "صيدليتك الذكية",
-        titleHighlight: "الشخصية",
+        title: "SmartTashkhees",
+        titleHighlight: "",
         description: "جرب مستقبل الرعاية الصحية مع نظام التشخيص الذكي الخاص بنا. حلل الأعراض، احصل على رؤى فورية، واكتشف العلاجات المناسبة لاحتياجاتك.",
         primaryButton: "ابدأ التشخيص",
         secondaryButton: "اعرف المزيد",

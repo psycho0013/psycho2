@@ -81,10 +81,15 @@ const Home = () => {
                         </div>
 
                         <h1 className="hero-title text-5xl lg:text-7xl font-bold text-slate-900 leading-tight mb-6">
-                            {hero.title} <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-                                {hero.titleHighlight}
-                            </span>
+                            {hero.title}
+                            {hero.titleHighlight && (
+                                <>
+                                    {' '}
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+                                        {hero.titleHighlight}
+                                    </span>
+                                </>
+                            )}
                         </h1>
 
                         <p className="hero-desc text-lg text-slate-600 mb-8 max-w-xl leading-relaxed">
