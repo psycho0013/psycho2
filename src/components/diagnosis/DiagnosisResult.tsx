@@ -58,6 +58,12 @@ const DiagnosisResult = ({ state }: Props) => {
 
             const allSymptomNames = [...symptomNames, ...relatedSymptomNames];
 
+            console.log('🤖 AI Connection: Sending request to OpenAI...', {
+                symptoms: allSymptomNames,
+                age: state.personalInfo.age,
+                gender: state.personalInfo.gender
+            });
+
             const response = await fetch('/api/diagnose', {
                 method: 'POST',
                 headers: {
@@ -72,10 +78,11 @@ const DiagnosisResult = ({ state }: Props) => {
             });
 
             if (!response.ok) {
-                throw new Error('Diagnosis failed');
+                throw new Error(`Diagnosis failed with status: ${response.status}`);
             }
 
             const data = await response.json();
+            console.log('✅ AI Connection: Received response!', data);
 
             // The API returns { diagnosis: [...], disclaimer: ... }
             // We need to map the first diagnosis to our result format
@@ -84,17 +91,25 @@ const DiagnosisResult = ({ state }: Props) => {
 
             if (data.diagnosis && data.diagnosis.length > 0) {
                 const topDiagnosis = data.diagnosis[0];
-                const matchedDisease = diseases.find(d => d.name.toLowerCase() === topDiagnosis.disease_name.toLowerCase());
+                console.log('🔍 AI Top Diagnosis:', topDiagnosis.disease_name);
+
+                // Normalizing names for better matching (trim and lowercase)
+                const matchedDisease = diseases.find(d =>
+                    d.name.toLowerCase().trim() === topDiagnosis.disease_name.toLowerCase().trim()
+                );
 
                 if (matchedDisease) {
+                    console.log('🎯 Database Match Found:', matchedDisease.name);
                     setResult(matchedDisease);
 
                     const emergencyStatus = state.selectedSymptoms.some(s => s.severity === 'severe') ||
-                        state.selectedSymptoms.some(s => ['chest_pain', 'shortness_of_breath'].includes(s.id)); // Keep basic emergency check
+                        state.selectedSymptoms.some(s => ['chest_pain', 'shortness_of_breath'].includes(s.id));
 
                     setIsEmergency(emergencyStatus);
                     StatisticsManager.saveDiagnosis(state, matchedDisease, emergencyStatus);
                 } else {
+                    console.warn('⚠️ AI found a disease but it is NOT in the local database:', topDiagnosis.disease_name);
+                    console.log('Available Diseases in DB:', diseases.map(d => d.name));
                     // AI found a disease but we don't have it in our DB exactly? 
                     // Or maybe the name is slightly different.
                     // For this MVP, let's fallback to "No match" if we can't link it to our DB, 
@@ -104,6 +119,7 @@ const DiagnosisResult = ({ state }: Props) => {
                     StatisticsManager.saveDiagnosis(state, null, false);
                 }
             } else {
+                console.log('ℹ️ AI returned no diagnosis.');
                 setResult(null);
                 StatisticsManager.saveDiagnosis(state, null, false);
             }
