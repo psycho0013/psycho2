@@ -1,7 +1,18 @@
-const { createClient } = require('@supabase/supabase-js');
-const OpenAI = require('openai').default;
+import { createClient } from '@supabase/supabase-js';
+import OpenAI from 'openai';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   console.log('🚀 Diagnose API called');
 
   if (req.method !== 'POST') {
@@ -43,11 +54,9 @@ module.exports = async (req, res) => {
 
   try {
     console.log('🔌 Initializing Supabase...');
-    // 1. Initialize Supabase
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     console.log('📊 Fetching diseases and symptoms from Supabase...');
-    // 2. Fetch Context Data (Diseases & Symptoms)
     const [diseasesResult, symptomsResult] = await Promise.all([
       supabase.from('diseases').select('*'),
       supabase.from('symptoms').select('*')
@@ -67,21 +76,13 @@ module.exports = async (req, res) => {
 
     console.log(`✅ Fetched ${diseases.length} diseases and ${allSymptoms.length} symptoms`);
 
-    // 3. Construct Prompt
-    // Map symptom IDs to names if needed, or just pass the names directly if frontend sends names.
-    // Assuming frontend sends ID or Name. Let's assume frontend sends names or we resolve them.
-    // For simplicity, let's assume the frontend sends the resolved names or we map them here.
-    // But to be safe, let's map IDs to names if the input is IDs.
-
-    // Let's assume 'symptoms' in body is an array of strings (names).
-
     const systemPrompt = `
       You are an expert medical diagnostician. Your goal is to diagnose a patient's condition based ONLY on the provided database of diseases.
       
       Here is the database of known diseases:
       ${JSON.stringify(diseases.map(d => ({
       name: d.name,
-      symptoms: d.symptoms, // These might be IDs, we should probably resolve them or rely on description
+      symptoms: d.symptoms,
       description: d.description,
       diagnosis_method: d.diagnosis_method
     })))}
@@ -112,17 +113,17 @@ module.exports = async (req, res) => {
       }
       4. If no disease matches well, state that in the reasoning and provide a low confidence score.
       5. DO NOT hallucinate diseases not in the database.
+      6. IMPORTANT: Use the EXACT disease name from the database.
     `;
 
     console.log('🤖 Calling OpenAI API...');
-    // 4. Call OpenAI
     const openai = new OpenAI({
       apiKey: openaiKey,
     });
 
     const completion = await openai.chat.completions.create({
       messages: [{ role: 'system', content: systemPrompt }],
-      model: 'gpt-4o', // or gpt-3.5-turbo
+      model: 'gpt-4o',
       response_format: { type: "json_object" },
     });
 
@@ -139,4 +140,4 @@ module.exports = async (req, res) => {
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
-};
+}
