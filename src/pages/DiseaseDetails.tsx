@@ -41,7 +41,11 @@ const DiseaseDetails = () => {
             <div className="bg-gradient-to-br from-rose-500 to-rose-600 text-white pt-32 pb-20 px-6 rounded-b-[3rem] shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/medical-icons.png')]"></div>
                 <div className="max-w-5xl mx-auto relative z-10">
-                    <Link to="/awareness" className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
+                    <Link
+                        to="/awareness"
+                        state={{ activeTab: 'diseases' }}
+                        className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm"
+                    >
                         <ArrowRight size={20} className="ml-2" />
                         العودة للقائمة
                     </Link>

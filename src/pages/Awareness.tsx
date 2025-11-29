@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, BookOpen, Pill, ChevronLeft } from 'lucide-react';
 import type { Disease, Treatment } from '@/types/medical';
 import DbManager from '@/services/dbManager';
 
 const Awareness = () => {
-    const [activeTab, setActiveTab] = useState<'diseases' | 'treatments'>('diseases');
+    const location = useLocation();
+    const [activeTab, setActiveTab] = useState<'diseases' | 'treatments'>(
+        location.state?.activeTab || 'diseases'
+    );
     const [searchTerm, setSearchTerm] = useState('');
     const [diseases, setDiseases] = useState<Disease[]>([]);
     const [treatments, setTreatments] = useState<Treatment[]>([]);

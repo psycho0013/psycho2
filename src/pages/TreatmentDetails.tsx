@@ -40,6 +40,7 @@ const TreatmentDetails = () => {
                 <div className="max-w-5xl mx-auto relative z-10">
                     <Link
                         to={fromDisease ? `/awareness/disease/${fromDisease.id}` : "/awareness"}
+                        state={fromDisease ? {} : { activeTab: 'treatments' }}
                         className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm"
                     >
                         <ArrowRight size={20} className="ml-2" />

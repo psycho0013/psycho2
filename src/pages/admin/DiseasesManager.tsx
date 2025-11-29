@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, Edit2, X } from 'lucide-react';
+import { Save, Plus, Trash2, Edit2, X, Search } from 'lucide-react';
 import type { Disease, Treatment, Symptom } from '@/types/medical';
 import DbManager from '@/services/dbManager';
 
@@ -9,6 +9,8 @@ const DiseasesManager = () => {
     const [availableSymptoms, setAvailableSymptoms] = useState<Symptom[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [symptomSearch, setSymptomSearch] = useState('');
+    const [treatmentSearch, setTreatmentSearch] = useState('');
     const [formData, setFormData] = useState<Partial<Disease>>({
         name: '',
         description: '',
@@ -82,6 +84,8 @@ const DiseasesManager = () => {
         });
         setIsEditing(false);
         setEditingId(null);
+        setSymptomSearch('');
+        setTreatmentSearch('');
     };
 
     const updateArrayField = (field: keyof Disease, index: number, value: string) => {
@@ -100,6 +104,16 @@ const DiseasesManager = () => {
         const arr = formData[field] as string[];
         setFormData({ ...formData, [field]: arr.filter((_, i) => i !== index) });
     };
+
+    const filteredSymptoms = availableSymptoms.filter(s =>
+        s.name.toLowerCase().includes(symptomSearch.toLowerCase()) ||
+        s.category.toLowerCase().includes(symptomSearch.toLowerCase())
+    );
+
+    const filteredTreatments = availableTreatments.filter(t =>
+        t.name.toLowerCase().includes(treatmentSearch.toLowerCase()) ||
+        t.type.toLowerCase().includes(treatmentSearch.toLowerCase())
+    );
 
     return (
         <div className="space-y-6">
@@ -155,11 +169,23 @@ const DiseasesManager = () => {
                         {/* Symptoms Selection */}
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">الأعراض الشائعة</label>
+                            <div className="relative mb-2">
+                                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="بحث عن عرض..."
+                                    value={symptomSearch}
+                                    onChange={(e) => setSymptomSearch(e.target.value)}
+                                    className="w-full pr-10 pl-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none text-sm"
+                                />
+                            </div>
                             <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 max-h-60 overflow-y-auto space-y-2">
-                                {availableSymptoms.length === 0 ? (
-                                    <p className="text-sm text-slate-500 text-center py-4">لا توجد أعراض مسجلة. يرجى إضافتها من صفحة إدارة الأعراض.</p>
+                                {filteredSymptoms.length === 0 ? (
+                                    <p className="text-sm text-slate-500 text-center py-4">
+                                        {availableSymptoms.length === 0 ? 'لا توجد أعراض مسجلة' : 'لا توجد نتائج للبحث'}
+                                    </p>
                                 ) : (
-                                    availableSymptoms.map((symptom) => (
+                                    filteredSymptoms.map((symptom) => (
                                         <label key={symptom.id} className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-slate-50 cursor-pointer border border-slate-100">
                                             <input
                                                 type="checkbox"
@@ -280,28 +306,44 @@ const DiseasesManager = () => {
 
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">العلاجات المرتبطة</label>
+                            <div className="relative mb-2">
+                                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="بحث عن علاج..."
+                                    value={treatmentSearch}
+                                    onChange={(e) => setTreatmentSearch(e.target.value)}
+                                    className="w-full pr-10 pl-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none text-sm"
+                                />
+                            </div>
                             <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 max-h-60 overflow-y-auto space-y-2">
-                                {availableTreatments.map((treatment) => (
-                                    <label key={treatment.id} className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-slate-50 cursor-pointer border border-slate-100">
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.treatments?.includes(treatment.id)}
-                                            onChange={(e) => {
-                                                const currentTreatments = formData.treatments || [];
-                                                if (e.target.checked) {
-                                                    setFormData({ ...formData, treatments: [...currentTreatments, treatment.id] });
-                                                } else {
-                                                    setFormData({ ...formData, treatments: currentTreatments.filter(id => id !== treatment.id) });
-                                                }
-                                            }}
-                                            className="w-4 h-4 text-primary rounded focus:ring-2 focus:ring-primary/20"
-                                        />
-                                        <div className="flex-1">
-                                            <span className="font-medium text-slate-700">{treatment.name}</span>
-                                            <span className="text-xs text-slate-400 mr-2">({treatment.type})</span>
-                                        </div>
-                                    </label>
-                                ))}
+                                {filteredTreatments.length === 0 ? (
+                                    <p className="text-sm text-slate-500 text-center py-4">
+                                        {availableTreatments.length === 0 ? 'لا توجد علاجات مسجلة' : 'لا توجد نتائج للبحث'}
+                                    </p>
+                                ) : (
+                                    filteredTreatments.map((treatment) => (
+                                        <label key={treatment.id} className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-slate-50 cursor-pointer border border-slate-100">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.treatments?.includes(treatment.id)}
+                                                onChange={(e) => {
+                                                    const currentTreatments = formData.treatments || [];
+                                                    if (e.target.checked) {
+                                                        setFormData({ ...formData, treatments: [...currentTreatments, treatment.id] });
+                                                    } else {
+                                                        setFormData({ ...formData, treatments: currentTreatments.filter(id => id !== treatment.id) });
+                                                    }
+                                                }}
+                                                className="w-4 h-4 text-primary rounded focus:ring-2 focus:ring-primary/20"
+                                            />
+                                            <div className="flex-1">
+                                                <span className="font-medium text-slate-700">{treatment.name}</span>
+                                                <span className="text-xs text-slate-400 mr-2">({treatment.type})</span>
+                                            </div>
+                                        </label>
+                                    ))
+                                )}
                             </div>
                         </div>
 

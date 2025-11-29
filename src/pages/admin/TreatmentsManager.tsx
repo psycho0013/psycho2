@@ -76,6 +76,23 @@ const TreatmentsManager = () => {
         setEditingId(null);
     };
 
+    const updateArrayField = (field: keyof Treatment, index: number, value: string) => {
+        const arr = formData[field] as string[];
+        const updated = [...arr];
+        updated[index] = value;
+        setFormData({ ...formData, [field]: updated });
+    };
+
+    const addArrayItem = (field: keyof Treatment) => {
+        const arr = (formData[field] as string[]) || [];
+        setFormData({ ...formData, [field]: [...arr, ''] });
+    };
+
+    const removeArrayItem = (field: keyof Treatment, index: number) => {
+        const arr = formData[field] as string[];
+        setFormData({ ...formData, [field]: arr.filter((_, i) => i !== index) });
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -168,6 +185,64 @@ const TreatmentsManager = () => {
                                 onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                                 className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none h-20 resize-none"
                             />
+                        </div>
+
+                        {/* Side Effects */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">الآثار الجانبية</label>
+                            {formData.side_effects?.map((item, idx) => (
+                                <div key={idx} className="flex gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        value={item}
+                                        onChange={(e) => updateArrayField('side_effects', idx, e.target.value)}
+                                        className="flex-1 px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeArrayItem('side_effects', idx)}
+                                        className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => addArrayItem('side_effects')}
+                                className="text-sm text-primary hover:underline"
+                            >
+                                + إضافة أثر جانبي
+                            </button>
+                        </div>
+
+                        {/* Precautions */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">التحذيرات والاحتياطات</label>
+                            {formData.precautions?.map((item, idx) => (
+                                <div key={idx} className="flex gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        value={item}
+                                        onChange={(e) => updateArrayField('precautions', idx, e.target.value)}
+                                        className="flex-1 px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeArrayItem('precautions', idx)}
+                                        className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => addArrayItem('precautions')}
+                                className="text-sm text-primary hover:underline"
+                            >
+                                + إضافة تحذير/احتياط
+                            </button>
                         </div>
 
                         <div className="flex gap-3 pt-4">
