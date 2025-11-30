@@ -17,6 +17,7 @@ export interface Treatment {
     precautions?: string[];
     instructions?: string;
     duration?: string;
+    price?: number;
 }
 
 export interface Disease {

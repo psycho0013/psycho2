@@ -69,6 +69,12 @@ const TreatmentDetails = () => {
                                     <span className="text-xl font-bold">{treatment.dosage}</span>
                                 </div>
                             )}
+                            {treatment.price && (
+                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 min-w-[200px]">
+                                    <span className="text-cyan-200 text-sm block mb-1">السعر التقريبي</span>
+                                    <span className="text-xl font-bold">{treatment.price.toLocaleString()} د.ع</span>
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 </div>

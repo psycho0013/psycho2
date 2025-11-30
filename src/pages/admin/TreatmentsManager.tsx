@@ -179,6 +179,17 @@ const TreatmentsManager = () => {
                         </div>
 
                         <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">السعر (د.ع)</label>
+                            <input
+                                type="number"
+                                value={formData.price || ''}
+                                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                placeholder="مثال: 5000"
+                            />
+                        </div>
+
+                        <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">التعليمات</label>
                             <textarea
                                 value={formData.instructions}

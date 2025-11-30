@@ -15,7 +15,7 @@ interface SiteSettings {
 
 const Footer = () => {
     const [settings, setSettings] = useState<SiteSettings>({
-        siteName: 'صيدلية فاي',
+        siteName: 'صيدلية SmartTashkhees',
         siteDescription: 'منصة رعاية صحية ذكية مدعومة بالذكاء الاصطناعي',
         email: 'contact@phy.ai',
         phone: '+964 770 000 0000',
