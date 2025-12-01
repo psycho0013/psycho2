@@ -12,7 +12,8 @@ import {
     ChevronRight, // In RTL, this might need to be ChevronLeft if used for pointing, but for "expand" icon usually it's fine or flipped via CSS
     Pill,
     Building2,
-    LogIn
+    LogIn,
+    FlaskConical
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminLoginModal from '../auth/AdminLoginModal';
@@ -26,6 +27,7 @@ const Sidebar = () => {
     const navItems = [
         { path: '/', label: 'الرئيسية', icon: Home },
         { path: '/diagnosis', label: 'التشخيص الذكي', icon: Activity },
+        { path: '/lab-diagnosis', label: 'المختبر الذكي', icon: FlaskConical },
         { path: '/awareness', label: 'توعية طبية', icon: BookOpen },
         { path: '/directory', label: 'دليل طبي', icon: Building2 },
         { path: '/about', label: 'عن المنصة', icon: Info },

@@ -3,6 +3,7 @@ import ScrollToTop from './components/ScrollToTop';
 import MainLayout from './components/layout/MainLayout';
 import Home from './pages/Home';
 import Diagnosis from './pages/Diagnosis';
+import LabDiagnosis from './pages/LabDiagnosis';
 import Awareness from './pages/Awareness';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -28,6 +29,7 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="diagnosis" element={<Diagnosis />} />
+          <Route path="lab-diagnosis" element={<LabDiagnosis />} />
           <Route path="awareness" element={<Awareness />} />
           <Route path="awareness/disease/:id" element={<DiseaseDetails />} />
           <Route path="awareness/treatment/:id" element={<TreatmentDetails />} />
