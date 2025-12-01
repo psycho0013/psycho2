@@ -6,15 +6,15 @@ export const contactContent = {
     info: {
         email: {
             title: "البريد الإلكتروني",
-            value: "contact@phy.ai"
+            value: "chnnel.mahmied@gmail.com"
         },
         phone: {
             title: "الهاتف",
-            value: "+964 770 000 0000"
+            value: "+964 773 165 0096"
         },
         location: {
             title: "الموقع",
-            value: "بغداد، العراق"
+            value: "الناصرية , العراق"
         }
     }
 };

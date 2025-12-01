@@ -6,7 +6,7 @@ export const homeContent = {
         description: "جرب مستقبل الرعاية الصحية مع نظام التشخيص الذكي الخاص بنا. حلل الأعراض، احصل على رؤى فورية، واكتشف العلاجات المناسبة لاحتياجاتك.",
         primaryButton: "ابدأ التشخيص",
         secondaryButton: "اعرف المزيد",
-        image: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&q=80&w=2091&ixlib=rb-4.0.3"
+        image: "https://res.cloudinary.com/dlmeokla6/image/upload/v1764594480/Gemini_Generated_Image_e41lcbe41lcbe41l_iwkqi5.png"
     },
     howItWorks: {
         title: "كيف يعمل النظام؟",
