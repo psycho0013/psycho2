@@ -9,7 +9,8 @@ const SymptomsManager = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [currentSymptom, setCurrentSymptom] = useState<Partial<Symptom>>({
         id: '',
-        name: '',
+        name_ar: '',
+        name_en: '',
         category: 'General',
         severities: ['mild', 'moderate', 'severe']
     });
@@ -27,11 +28,16 @@ const SymptomsManager = () => {
     };
 
     const handleSave = async () => {
-        if (!currentSymptom.name || !currentSymptom.category) return;
+        if (!currentSymptom.name_ar || !currentSymptom.name_en || !currentSymptom.category) {
+            alert('يرجى ملء جميع الحقول المطلوبة');
+            return;
+        }
 
         const symptomToSave: Symptom = {
             id: currentSymptom.id || crypto.randomUUID(),
-            name: currentSymptom.name,
+            name: currentSymptom.name_ar, // For backward compatibility
+            name_ar: currentSymptom.name_ar,
+            name_en: currentSymptom.name_en,
             category: currentSymptom.category,
             severities: currentSymptom.severities || ['mild', 'moderate', 'severe']
         };
@@ -40,7 +46,7 @@ const SymptomsManager = () => {
         if (success) {
             await loadSymptoms();
             setIsEditing(false);
-            setCurrentSymptom({ id: '', name: '', category: 'General', severities: ['mild', 'moderate', 'severe'] });
+            resetForm();
         } else {
             alert('حدث خطأ أثناء حفظ العرض');
         }
@@ -58,8 +64,22 @@ const SymptomsManager = () => {
     };
 
     const startEdit = (symptom: Symptom) => {
-        setCurrentSymptom(symptom);
+        setCurrentSymptom({
+            ...symptom,
+            name_ar: symptom.name_ar || symptom.name, // Fallback to name if name_ar is missing
+            name_en: symptom.name_en || ''
+        });
         setIsEditing(true);
+    };
+
+    const resetForm = () => {
+        setCurrentSymptom({
+            id: '',
+            name_ar: '',
+            name_en: '',
+            category: 'General',
+            severities: ['mild', 'moderate', 'severe']
+        });
     };
 
     return (
@@ -67,11 +87,11 @@ const SymptomsManager = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900">إدارة الأعراض</h1>
-                    <p className="text-slate-500">إضافة وتعديل الأعراض الطبية</p>
+                    <p className="text-slate-500">إضافة وتعديل الأعراض الطبية (عربي / إنجليزي)</p>
                 </div>
                 <button
                     onClick={() => {
-                        setCurrentSymptom({ id: '', name: '', category: 'General', severities: ['mild', 'moderate', 'severe'] });
+                        resetForm();
                         setIsEditing(true);
                     }}
                     className="bg-primary text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-primary/90 transition-colors"
@@ -94,17 +114,30 @@ const SymptomsManager = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700">اسم العرض</label>
+                            <label className="text-sm font-medium text-slate-700">اسم العرض (بالعربي)</label>
                             <input
                                 type="text"
-                                value={currentSymptom.name}
-                                onChange={(e) => setCurrentSymptom({ ...currentSymptom, name: e.target.value })}
-                                className="w-full p-3 rounded-xl border border-slate-200 focus:border-primary outline-none"
+                                value={currentSymptom.name_ar}
+                                onChange={(e) => setCurrentSymptom({ ...currentSymptom, name_ar: e.target.value })}
+                                className="w-full p-3 rounded-xl border border-slate-200 focus:border-primary outline-none text-right"
                                 placeholder="مثال: صداع نصفي"
+                                dir="rtl"
                             />
                         </div>
 
                         <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Symptom Name (English)</label>
+                            <input
+                                type="text"
+                                value={currentSymptom.name_en}
+                                onChange={(e) => setCurrentSymptom({ ...currentSymptom, name_en: e.target.value })}
+                                className="w-full p-3 rounded-xl border border-slate-200 focus:border-primary outline-none text-left"
+                                placeholder="Ex: Migraine"
+                                dir="ltr"
+                            />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
                             <label className="text-sm font-medium text-slate-700">التصنيف</label>
                             <select
                                 value={currentSymptom.category}
@@ -112,7 +145,9 @@ const SymptomsManager = () => {
                                 className="w-full p-3 rounded-xl border border-slate-200 focus:border-primary outline-none"
                             >
                                 {symptomCategories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    <option key={cat.id} value={cat.id}>
+                                        {cat.name} / {cat.name_en}
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -141,7 +176,8 @@ const SymptomsManager = () => {
                     <table className="w-full text-right">
                         <thead className="bg-slate-50 border-b border-slate-100">
                             <tr>
-                                <th className="p-4 text-sm font-semibold text-slate-600">اسم العرض</th>
+                                <th className="p-4 text-sm font-semibold text-slate-600">الاسم (عربي)</th>
+                                <th className="p-4 text-sm font-semibold text-slate-600">Name (English)</th>
                                 <th className="p-4 text-sm font-semibold text-slate-600">التصنيف</th>
                                 <th className="p-4 text-sm font-semibold text-slate-600">الإجراءات</th>
                             </tr>
@@ -149,16 +185,17 @@ const SymptomsManager = () => {
                         <tbody className="divide-y divide-slate-100">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={3} className="p-8 text-center text-slate-500">جاري التحميل...</td>
+                                    <td colSpan={4} className="p-8 text-center text-slate-500">جاري التحميل...</td>
                                 </tr>
                             ) : symptomsList.length === 0 ? (
                                 <tr>
-                                    <td colSpan={3} className="p-8 text-center text-slate-500">لا توجد أعراض مسجلة</td>
+                                    <td colSpan={4} className="p-8 text-center text-slate-500">لا توجد أعراض مسجلة</td>
                                 </tr>
                             ) : (
                                 symptomsList.map((symptom) => (
                                     <tr key={symptom.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="p-4 font-medium text-slate-900">{symptom.name}</td>
+                                        <td className="p-4 font-medium text-slate-900">{symptom.name_ar || symptom.name}</td>
+                                        <td className="p-4 font-medium text-slate-700 text-left" dir="ltr">{symptom.name_en || '-'}</td>
                                         <td className="p-4">
                                             <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">
                                                 {symptomCategories.find(c => c.id === symptom.category)?.name || symptom.category}
