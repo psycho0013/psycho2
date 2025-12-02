@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Save, Key, Trash2, RotateCcw, Globe, Mail, Phone, MapPin, Facebook, Twitter, Instagram, AlertCircle, CheckCircle } from 'lucide-react';
+import { KeyManager } from '../../components/Security/KeyManager';
+import { Save, Key, Trash2, RotateCcw, Globe, Mail, Phone, MapPin, Facebook, Twitter, Instagram, AlertCircle, CheckCircle, Shield } from 'lucide-react';
 
 interface SiteSettings {
     siteName: string;
@@ -13,7 +14,7 @@ interface SiteSettings {
 }
 
 const Settings = () => {
-    const [activeTab, setActiveTab] = useState<'general' | 'account' | 'system'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'account' | 'system' | 'security'>('general');
     const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
 
     // General Settings
@@ -93,6 +94,7 @@ const Settings = () => {
     const tabs = [
         { id: 'general', label: 'الإعدادات العامة', icon: Globe },
         { id: 'account', label: 'الحساب', icon: Key },
+        { id: 'security', label: 'الأمان والتشفير', icon: Shield },
         { id: 'system', label: 'النظام', icon: RotateCcw },
     ];
 
@@ -118,8 +120,8 @@ const Settings = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
                         className={`px-6 py-3 font-medium text-sm transition-all relative flex items-center gap-2 ${activeTab === tab.id
-                                ? 'text-primary'
-                                : 'text-slate-500 hover:text-slate-800'
+                            ? 'text-primary'
+                            : 'text-slate-500 hover:text-slate-800'
                             }`}
                     >
                         <tab.icon size={18} />
@@ -372,6 +374,13 @@ const Settings = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* Security Settings */}
+            {activeTab === 'security' && (
+                <div className="space-y-6">
+                    <KeyManager />
                 </div>
             )}
         </div>

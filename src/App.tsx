@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
+import { SecurityProvider } from './contexts/SecurityContext';
+import { EncryptionPrompt } from './components/Security/EncryptionPrompt';
 import MainLayout from './components/layout/MainLayout';
 import Home from './pages/Home';
 import Diagnosis from './pages/Diagnosis';
@@ -24,34 +26,39 @@ import Settings from './pages/admin/Settings';
 function App() {
   return (
     <BrowserRouter>
-      <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Home />} />
-          <Route path="diagnosis" element={<Diagnosis />} />
-          <Route path="lab-diagnosis" element={<LabDiagnosis />} />
-          <Route path="awareness" element={<Awareness />} />
-          <Route path="awareness/disease/:id" element={<DiseaseDetails />} />
-          <Route path="awareness/treatment/:id" element={<TreatmentDetails />} />
-          <Route path="directory" element={<MedicalDirectory />} />
-          <Route path="directory/:id" element={<DirectoryItemDetails />} />
-          <Route path="about" element={<About />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="contact" element={<Contact />} />
-        </Route>
+      <SecurityProvider>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Home />} />
+            <Route path="diagnosis" element={<Diagnosis />} />
+            <Route path="lab-diagnosis" element={<LabDiagnosis />} />
+            <Route path="awareness" element={<Awareness />} />
+            <Route path="awareness/disease/:id" element={<DiseaseDetails />} />
+            <Route path="awareness/treatment/:id" element={<TreatmentDetails />} />
+            <Route path="directory" element={<MedicalDirectory />} />
+            <Route path="directory/:id" element={<DirectoryItemDetails />} />
+            <Route path="about" element={<About />} />
+            <Route path="contact" element={<Contact />} />
+          </Route>
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="content" element={<ContentEditor />} />
-          <Route path="diseases" element={<DiseasesManager />} />
-          <Route path="symptoms" element={<SymptomsManager />} />
-          <Route path="treatments" element={<TreatmentsManager />} />
-          <Route path="directory" element={<DirectoryManager />} />
-          <Route path="data" element={<DataManager />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
+          {/* Admin Routes - Protected by EncryptionPrompt */}
+          <Route path="/admin" element={
+            <EncryptionPrompt>
+              <AdminLayout />
+            </EncryptionPrompt>
+          }>
+            <Route index element={<Dashboard />} />
+            <Route path="content" element={<ContentEditor />} />
+            <Route path="diseases" element={<DiseasesManager />} />
+            <Route path="symptoms" element={<SymptomsManager />} />
+            <Route path="treatments" element={<TreatmentsManager />} />
+            <Route path="directory" element={<DirectoryManager />} />
+            <Route path="data" element={<DataManager />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+        </Routes>
+      </SecurityProvider>
     </BrowserRouter>
   );
 }
