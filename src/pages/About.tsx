@@ -3,6 +3,8 @@ import { Instagram, Send } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import DataManager, { type SiteContent } from '@/services/dataManager';
 
+import PageLoader from '@/components/ui/PageLoader';
+
 const About = () => {
     const [content, setContent] = useState<SiteContent | null>(null);
 
@@ -21,7 +23,7 @@ const About = () => {
         return () => window.removeEventListener('content-updated', handleUpdate);
     }, []);
 
-    if (!content) return null;
+    if (!content) return <PageLoader />;
 
     const { header, developer, techStack } = content.about;
 

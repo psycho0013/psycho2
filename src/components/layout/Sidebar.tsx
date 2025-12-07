@@ -95,37 +95,58 @@ const Sidebar = () => {
                 </div>
 
                 {/* Navigation Links */}
-                <nav className="flex-1 py-8 px-4 space-y-2 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                <nav className="flex-1 py-8 px-4 space-y-3 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                     {navItems.map((item) => (
                         <NavLink
                             key={item.path}
                             to={item.path}
                             className={({ isActive }) => cn(
-                                "flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
+                                "flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden",
                                 isActive
-                                    ? "bg-primary/10 text-primary font-bold"
-                                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium",
+                                    ? "text-primary font-bold shadow-lg shadow-primary/10"
+                                    : "text-slate-500 hover:text-slate-900 font-medium",
                                 !isOpen && "justify-center px-2"
                             )}
                         >
-                            <item.icon size={24} className="shrink-0" />
+                            {({ isActive }) => (
+                                <>
+                                    {/* Glass Active Background */}
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeNavBackground"
+                                            className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-100 rounded-2xl border border-primary/20 backdrop-blur-sm"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                        />
+                                    )}
 
-                            <AnimatePresence mode="wait">
-                                {isOpen && (
-                                    <motion.span
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -10 }}
-                                        className="whitespace-nowrap"
-                                    >
-                                        {item.label}
-                                    </motion.span>
-                                )}
-                            </AnimatePresence>
+                                    {/* Hover Background - Subtle */}
+                                    <div className="absolute inset-0 bg-slate-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl -z-10" />
 
-                            {/* Active Indicator */}
-                            {isOpen && (
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full opacity-0 transition-opacity duration-200 [.active_&]:opacity-100" />
+                                    <item.icon size={24} className={cn("shrink-0 relative z-10 transition-transform duration-300 group-hover:scale-110", isActive && "text-primary")} />
+
+                                    <AnimatePresence mode="wait">
+                                        {isOpen && (
+                                            <motion.span
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -10 }}
+                                                className="whitespace-nowrap relative z-10"
+                                            >
+                                                {item.label}
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Active Indicator Bar */}
+                                    {isOpen && isActive && (
+                                        <motion.div
+                                            layoutId="activeNavBar"
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-primary rounded-r-full shadow-sm shadow-primary/50"
+                                        />
+                                    )}
+                                </>
                             )}
                         </NavLink>
                     ))}

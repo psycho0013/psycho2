@@ -18,11 +18,11 @@
 
 @layer components {
   /* --- Liquid Glass Utilities --- */
-  
+
   .liquid-bg {
     @apply fixed inset-0 -z-10;
-    background: 
-      radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.15), transparent 25%), 
+    background:
+      radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.15), transparent 25%),
       radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15), transparent 25%);
     background-size: 100% 100%;
     animation: liquid-move 20s ease-in-out infinite alternate;
@@ -33,10 +33,7 @@
   }
 
   .glass-card {
-    @apply relative overflow-hidden transition-all duration-300
-           bg-white/40 backdrop-blur-md border border-white/50 
-           hover:bg-white/60 hover:border-white/80 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1
-           rounded-2xl cursor-pointer;
+    @apply relative overflow-hidden transition-all duration-300 bg-white/40 backdrop-blur-md border border-white/50 hover:bg-white/60 hover:border-white/80 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 active:scale-95 active:bg-white/70 rounded-2xl cursor-pointer;
   }
 
   .glass-card.selected {
@@ -44,10 +41,7 @@
   }
 
   .glass-button {
-    @apply relative overflow-hidden transition-all duration-300
-           bg-white/20 backdrop-blur-md border border-white/40 
-           hover:bg-white/40 hover:scale-105 active:scale-95
-           text-slate-800 font-semibold rounded-xl shadow-sm;
+    @apply relative overflow-hidden transition-all duration-300 bg-white/20 backdrop-blur-md border border-white/40 hover:bg-white/40 hover:scale-105 hover:shadow-md active:scale-95 active:bg-white/60 text-slate-800 font-semibold rounded-xl shadow-sm;
   }
 
   .glass-button-primary {
@@ -55,15 +49,18 @@
   }
 
   .glass-input {
-    @apply w-full bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl px-4 py-3
-           focus:bg-white/80 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 
-           placeholder:text-slate-400 outline-none transition-all;
+    @apply w-full bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl px-4 py-3 focus:bg-white/80 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 placeholder:text-slate-400 outline-none transition-all;
   }
 
   /* --- Animations --- */
   @keyframes liquid-move {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.1); }
+    0% {
+      transform: scale(1);
+    }
+
+    100% {
+      transform: scale(1.1);
+    }
   }
 
   .animate-float {
@@ -71,8 +68,16 @@
   }
 
   @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
+    0% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+
+    100% {
+      transform: translateY(0px);
+    }
   }
 }
