@@ -5,12 +5,74 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 40% 98%;
     --foreground: 222.2 84% 4.9%;
   }
 
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  /* --- Liquid Glass Utilities --- */
+  
+  .liquid-bg {
+    @apply fixed inset-0 -z-10;
+    background: 
+      radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.15), transparent 25%), 
+      radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15), transparent 25%);
+    background-size: 100% 100%;
+    animation: liquid-move 20s ease-in-out infinite alternate;
+  }
+
+  .glass-panel {
+    @apply bg-white/60 backdrop-blur-2xl border border-white/40 shadow-xl shadow-indigo-500/5 rounded-[2rem];
+  }
+
+  .glass-card {
+    @apply relative overflow-hidden transition-all duration-300
+           bg-white/40 backdrop-blur-md border border-white/50 
+           hover:bg-white/60 hover:border-white/80 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1
+           rounded-2xl cursor-pointer;
+  }
+
+  .glass-card.selected {
+    @apply bg-white/80 border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/20;
+  }
+
+  .glass-button {
+    @apply relative overflow-hidden transition-all duration-300
+           bg-white/20 backdrop-blur-md border border-white/40 
+           hover:bg-white/40 hover:scale-105 active:scale-95
+           text-slate-800 font-semibold rounded-xl shadow-sm;
+  }
+
+  .glass-button-primary {
+    @apply bg-primary/90 text-white border-transparent hover:bg-primary shadow-lg shadow-primary/30;
+  }
+
+  .glass-input {
+    @apply w-full bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl px-4 py-3
+           focus:bg-white/80 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 
+           placeholder:text-slate-400 outline-none transition-all;
+  }
+
+  /* --- Animations --- */
+  @keyframes liquid-move {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
   }
 }

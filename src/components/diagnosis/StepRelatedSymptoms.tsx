@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Check } from 'lucide-react';
+import { Plus, Check, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { DiagnosisState } from '../../pages/Diagnosis';
 import type { Symptom } from '@/types/medical';
@@ -59,10 +59,12 @@ const StepRelatedSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             <div className="text-center">
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">هل لديك أي من هذه الأعراض ذات الصلة؟</h2>
-                <p className="text-slate-500">بناءً على ما أخبرتنا به، قد تعاني أيضاً من هذه الأعراض.</p>
+                <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 mb-2">
+                    أعراض ذات صلة
+                </h2>
+                <p className="text-slate-500">بناءً على اختيارك، قد تكون تعاني أيضاً من هذه الأعراض.</p>
             </div>
 
             {suggestedSymptoms.length > 0 ? (
@@ -73,45 +75,51 @@ const StepRelatedSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
                             <motion.button
                                 key={symptom.id}
                                 layout
+                                whileHover={{ scale: 1.02, y: -2 }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={() => toggleRelated(symptom.id)}
                                 className={cn(
-                                    "p-4 rounded-xl border text-right transition-all flex items-center justify-between group",
-                                    isSelected
-                                        ? "border-primary bg-primary/5 shadow-md"
-                                        : "border-slate-200 hover:border-primary/50 hover:bg-slate-50"
+                                    "glass-card p-4 flex items-center justify-between group h-20",
+                                    isSelected && "selected bg-primary/5 border-primary/50"
                                 )}
                             >
-                                <span className={cn("font-medium", isSelected ? "text-primary" : "text-slate-700")}>
+                                <span className={cn(
+                                    "font-bold text-lg transition-colors",
+                                    isSelected ? "text-primary" : "text-slate-700"
+                                )}>
                                     {symptom.name}
                                 </span>
                                 <div className={cn(
-                                    "w-6 h-6 rounded-full flex items-center justify-center transition-all",
-                                    isSelected ? "bg-primary text-white" : "bg-slate-100 text-slate-400 group-hover:bg-primary/10 group-hover:text-primary"
+                                    "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm",
+                                    isSelected ? "bg-primary text-white scale-110 shadow-primary/30" : "bg-white text-slate-400 group-hover:text-primary"
                                 )}>
-                                    {isSelected ? <Check size={14} /> : <Plus size={14} />}
+                                    {isSelected ? <Check size={16} /> : <Plus size={16} />}
                                 </div>
                             </motion.button>
                         );
                     })}
                 </div>
             ) : (
-                <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                    <p className="text-slate-500">لم يتم العثور على أعراض ذات صلة بناءً على اختيارك.</p>
+                <div className="text-center py-16 bg-white/40 backdrop-blur-sm rounded-3xl border border-dashed border-slate-300/50">
+                    <div className="w-16 h-16 bg-white/60 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400 shadow-inner">
+                        <Info size={32} />
+                    </div>
+                    <p className="text-slate-500 font-medium">لم يتم العثور على أعراض إضافية ذات صلة.</p>
                 </div>
             )}
 
-            <div className="pt-6 flex justify-between border-t border-slate-100">
+            <div className="pt-6 flex justify-between border-t border-slate-200/50">
                 <button
                     onClick={onPrev}
-                    className="px-6 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-xl transition-all"
+                    className="glass-button px-8 py-3 hover:bg-white/60"
                 >
                     رجوع
                 </button>
                 <button
                     onClick={onNext}
-                    className="px-8 py-3 bg-primary text-white rounded-xl font-semibold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all"
+                    className="glass-button glass-button-primary px-10 py-3"
                 >
-                    {state.relatedSymptoms.length > 0 ? 'الخطوة التالية' : 'تخطي ومتابعة'}
+                    {state.relatedSymptoms.length > 0 ? 'متابعة' : 'تخطي ومتابعة'}
                 </button>
             </div>
         </div>
