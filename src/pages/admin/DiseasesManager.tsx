@@ -15,6 +15,7 @@ const DiseasesManager = () => {
         name: '',
         description: '',
         symptoms: [],
+        symptom_weights: {},
         treatments: [],
         prevention: [''],
         causes: [''],
@@ -76,6 +77,7 @@ const DiseasesManager = () => {
             name: '',
             description: '',
             symptoms: [],
+            symptom_weights: {},
             treatments: [],
             prevention: [''],
             causes: [''],
@@ -209,6 +211,48 @@ const DiseasesManager = () => {
                                 )}
                             </div>
                         </div>
+
+                        {/* Symptom Weights - Only show if symptoms selected */}
+                        {formData.symptoms && formData.symptoms.length > 0 && (
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-100">
+                                <label className="block text-sm font-bold text-blue-800 mb-3">
+                                    ⚖️ أوزان الأعراض (للتشخيص الذكي)
+                                </label>
+                                <p className="text-xs text-blue-600 mb-4">
+                                    حدد مدى أهمية كل عرض في تشخيص هذا المرض (0 = غير مهم، 100 = أساسي)
+                                </p>
+                                <div className="space-y-3">
+                                    {formData.symptoms.map((symptomId) => {
+                                        const symptom = availableSymptoms.find(s => s.id === symptomId);
+                                        const weight = formData.symptom_weights?.[symptomId] ?? 50;
+                                        return (
+                                            <div key={symptomId} className="bg-white p-3 rounded-lg border border-blue-100 flex items-center gap-4">
+                                                <span className="text-sm font-medium text-slate-700 w-32 truncate">
+                                                    {symptom?.name || symptomId}
+                                                </span>
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="100"
+                                                    value={weight}
+                                                    onChange={(e) => {
+                                                        const newWeights = { ...formData.symptom_weights, [symptomId]: parseInt(e.target.value) };
+                                                        setFormData({ ...formData, symptom_weights: newWeights });
+                                                    }}
+                                                    className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                                                />
+                                                <span className={`text-sm font-bold w-12 text-center rounded-lg py-1 ${weight >= 80 ? 'bg-red-100 text-red-700' :
+                                                        weight >= 50 ? 'bg-amber-100 text-amber-700' :
+                                                            'bg-slate-100 text-slate-600'
+                                                    }`}>
+                                                    {weight}%
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">طرق الوقاية</label>
