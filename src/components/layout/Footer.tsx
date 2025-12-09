@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
+import { Instagram, Send, Mail, Phone, MapPin } from 'lucide-react';
 
 interface SiteSettings {
     siteName: string;
@@ -8,21 +8,19 @@ interface SiteSettings {
     email: string;
     phone: string;
     address: string;
-    facebook: string;
-    twitter: string;
     instagram: string;
+    telegram: string;
 }
 
 const Footer = () => {
     const [settings, setSettings] = useState<SiteSettings>({
         siteName: 'صيدلية SmartTashkhees',
         siteDescription: 'منصة رعاية صحية ذكية مدعومة بالذكاء الاصطناعي',
-        email: 'contact@phy.ai',
-        phone: '+964 770 000 0000',
-        address: 'بغداد، العراق',
-        facebook: 'https://facebook.com',
-        twitter: 'https://twitter.com',
-        instagram: 'https://instagram.com'
+        email: 'chnnel.amhmied@gmail.com',
+        phone: '+964 773 165 0096',
+        address: 'الناصرية , العراق',
+        instagram: 'https://www.instagram.com/ov4x?igsh=dngzaXBxdnkyMDh3&utm_source=qr',
+        telegram: 'https://t.me/OxX_xX'
     });
 
     useEffect(() => {
@@ -43,34 +41,24 @@ const Footer = () => {
                             {settings.siteDescription}
                         </p>
                         <div className="flex gap-3">
-                            {settings.facebook && (
-                                <a
-                                    href={settings.facebook}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 bg-slate-800 hover:bg-primary rounded-lg flex items-center justify-center transition-colors"
-                                >
-                                    <Facebook size={18} />
-                                </a>
-                            )}
-                            {settings.twitter && (
-                                <a
-                                    href={settings.twitter}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 bg-slate-800 hover:bg-primary rounded-lg flex items-center justify-center transition-colors"
-                                >
-                                    <Twitter size={18} />
-                                </a>
-                            )}
                             {settings.instagram && (
                                 <a
                                     href={settings.instagram}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-10 h-10 bg-slate-800 hover:bg-primary rounded-lg flex items-center justify-center transition-colors"
+                                    className="w-10 h-10 bg-slate-800 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500 rounded-lg flex items-center justify-center transition-all"
                                 >
                                     <Instagram size={18} />
+                                </a>
+                            )}
+                            {settings.telegram && (
+                                <a
+                                    href={settings.telegram}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-10 h-10 bg-slate-800 hover:bg-[#0088cc] rounded-lg flex items-center justify-center transition-colors"
+                                >
+                                    <Send size={18} />
                                 </a>
                             )}
                         </div>
