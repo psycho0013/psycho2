@@ -58,8 +58,10 @@ const DiagnosisResult = ({ state }: Props) => {
 
             const allSymptomNames = [...symptomNames, ...relatedSymptomNames];
 
-            console.log('🤖 AI Connection: Sending request to OpenAI...', {
+            console.log('🤖 HYBRID Diagnosis: Sending request...', {
                 symptoms: allSymptomNames,
+                symptomDetails: state.selectedSymptoms,
+                relatedSymptoms: state.relatedSymptoms,
                 age: state.personalInfo.age,
                 gender: state.personalInfo.gender
             });
@@ -71,9 +73,11 @@ const DiagnosisResult = ({ state }: Props) => {
                 },
                 body: JSON.stringify({
                     symptoms: allSymptomNames,
+                    symptomDetails: state.selectedSymptoms, // { id, severity }[]
+                    relatedSymptoms: state.relatedSymptoms, // string[] of IDs
                     age: state.personalInfo.age,
                     gender: state.personalInfo.gender === 'male' ? 'Male' : 'Female',
-                    notes: `Weight: ${state.personalInfo.weight}, Height: ${state.personalInfo.height}, Chronic Diseases: ${state.vitals.chronicDiseases.join(', ')}`
+                    notes: `Weight: ${state.personalInfo.weight}, Height: ${state.personalInfo.height}, Chronic Diseases: ${state.vitals.chronicDiseases.join(', ')}, Pregnant: ${state.personalInfo.isPregnant}, Breastfeeding: ${state.personalInfo.isBreastfeeding}`
                 }),
             });
 

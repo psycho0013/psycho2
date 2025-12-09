@@ -27,6 +27,7 @@ export interface Disease {
     name: string;
     description: string;
     symptoms: string[]; // Array of symptom IDs
+    symptom_weights?: Record<string, number>; // Optional: { symptom_id: weight (0-100) }
     treatments: string[]; // Array of treatment IDs
     prevention: string[];
     causes: string[];
