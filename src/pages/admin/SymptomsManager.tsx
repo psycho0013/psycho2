@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, Edit2, X } from 'lucide-react';
+import { Save, Plus, Trash2, Edit2, X, AlertTriangle } from 'lucide-react';
 import type { Symptom } from '@/types/medical';
 import { symptomCategories } from '@/types/medical';
 import DbManager from '@/services/dbManager';
@@ -12,7 +12,8 @@ const SymptomsManager = () => {
         name_ar: '',
         name_en: '',
         category: 'General',
-        severities: ['mild', 'moderate', 'severe']
+        severities: ['mild', 'moderate', 'severe'],
+        is_critical: false
     });
     const [loading, setLoading] = useState(true);
 
@@ -39,7 +40,8 @@ const SymptomsManager = () => {
             name_ar: currentSymptom.name_ar,
             name_en: currentSymptom.name_en,
             category: currentSymptom.category,
-            severities: currentSymptom.severities || ['mild', 'moderate', 'severe']
+            severities: currentSymptom.severities || ['mild', 'moderate', 'severe'],
+            is_critical: currentSymptom.is_critical || false
         };
 
         const success = await DbManager.saveSymptom(symptomToSave);
@@ -78,7 +80,8 @@ const SymptomsManager = () => {
             name_ar: '',
             name_en: '',
             category: 'General',
-            severities: ['mild', 'moderate', 'severe']
+            severities: ['mild', 'moderate', 'severe'],
+            is_critical: false
         });
     };
 
@@ -151,6 +154,23 @@ const SymptomsManager = () => {
                                 ))}
                             </select>
                         </div>
+
+                        {/* Critical Symptom Toggle */}
+                        <div className="md:col-span-2">
+                            <label className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl cursor-pointer hover:bg-red-100 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    checked={currentSymptom.is_critical || false}
+                                    onChange={(e) => setCurrentSymptom({ ...currentSymptom, is_critical: e.target.checked })}
+                                    className="w-5 h-5 accent-red-500"
+                                />
+                                <AlertTriangle className="text-red-500" size={20} />
+                                <div>
+                                    <span className="font-bold text-red-800">عرض حرج (طوارئ)</span>
+                                    <p className="text-xs text-red-600">إذا اختار المريض هذا العرض بشدة "شديدة"، سيظهر تنبيه الطوارئ</p>
+                                </div>
+                            </label>
+                        </div>
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3">
@@ -197,9 +217,17 @@ const SymptomsManager = () => {
                                         <td className="p-4 font-medium text-slate-900">{symptom.name_ar || symptom.name}</td>
                                         <td className="p-4 font-medium text-slate-700 text-left" dir="ltr">{symptom.name_en || '-'}</td>
                                         <td className="p-4">
-                                            <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">
-                                                {symptomCategories.find(c => c.id === symptom.category)?.name || symptom.category}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">
+                                                    {symptomCategories.find(c => c.id === symptom.category)?.name || symptom.category}
+                                                </span>
+                                                {symptom.is_critical && (
+                                                    <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs flex items-center gap-1">
+                                                        <AlertTriangle size={12} />
+                                                        حرج
+                                                    </span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-2">

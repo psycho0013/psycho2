@@ -7,6 +7,7 @@ export interface Symptom {
     name_en: string;
     category: string;
     severities: Severity[];
+    is_critical?: boolean; // If true, this symptom triggers emergency alert when severe
 }
 
 export interface Treatment {

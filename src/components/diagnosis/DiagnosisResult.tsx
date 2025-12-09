@@ -106,9 +106,27 @@ const DiagnosisResult = ({ state }: Props) => {
                     console.log('🎯 Database Match Found:', matchedDisease.name);
                     setResult(matchedDisease);
 
-                    const emergencyStatus = state.selectedSymptoms.some(s => s.severity === 'severe') ||
-                        state.selectedSymptoms.some(s => ['chest_pain', 'shortness_of_breath'].includes(s.id));
+                    // Emergency detection using database-driven is_critical field
+                    // Check if any selected symptom is marked as critical in database AND has severe severity
+                    const hasCriticalSymptom = state.selectedSymptoms.some(s => {
+                        const symptom = allSymptoms.find(sym => sym.id === s.id);
+                        return symptom?.is_critical === true;
+                    });
 
+                    const hasSevereSeverity = state.selectedSymptoms.some(s => s.severity === 'severe');
+
+                    // Emergency = Critical symptom + Severe severity
+                    const emergencyStatus = hasCriticalSymptom && hasSevereSeverity;
+
+                    console.log('🚨 Emergency Check:', {
+                        hasCriticalSymptom,
+                        hasSevereSeverity,
+                        emergencyStatus,
+                        criticalSymptoms: state.selectedSymptoms.filter(s => {
+                            const sym = allSymptoms.find(x => x.id === s.id);
+                            return sym?.is_critical;
+                        }).map(s => s.id)
+                    });
                     setIsEmergency(emergencyStatus);
                     StatisticsManager.saveDiagnosis(state, matchedDisease, emergencyStatus);
                 } else {

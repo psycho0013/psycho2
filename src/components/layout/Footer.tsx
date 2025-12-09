@@ -75,6 +75,9 @@ const Footer = () => {
                                 <Link to="/diagnosis" className="hover:text-primary transition-colors">التشخيص</Link>
                             </li>
                             <li>
+                                <Link to="/lab-diagnosis" className="hover:text-primary transition-colors">التحليل الذكي</Link>
+                            </li>
+                            <li>
                                 <Link to="/awareness" className="hover:text-primary transition-colors">التوعية الطبية</Link>
                             </li>
                             <li>
