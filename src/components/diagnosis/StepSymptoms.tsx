@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Activity } from 'lucide-react';
+import { X, Activity, Search, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { DiagnosisState } from '../../pages/Diagnosis';
 import { symptomCategories, type Symptom, type Severity } from '@/types/medical';
@@ -17,6 +17,8 @@ const StepSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
     const [activeCategory, setActiveCategory] = useState(symptomCategories[0].id);
     const [selectedSymptomForSeverity, setSelectedSymptomForSeverity] = useState<Symptom | null>(null);
     const [symptomsList, setSymptomsList] = useState<Symptom[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchMode, setIsSearchMode] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -48,10 +50,35 @@ const StepSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
         }
     };
 
-    const filteredSymptoms = symptomsList.filter((s) => s.category === activeCategory);
+    // Get category name in Arabic
+    const getCategoryName = (categoryId: string) => {
+        return symptomCategories.find(c => c.id === categoryId)?.name || categoryId;
+    };
+
+    // Filter symptoms based on search or category
+    const getDisplayedSymptoms = () => {
+        if (isSearchMode && searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            return symptomsList.filter(s =>
+                (s.name_ar || s.name || '').toLowerCase().includes(query) ||
+                (s.name_en || '').toLowerCase().includes(query)
+            );
+        }
+        return symptomsList.filter((s) => s.category === activeCategory);
+    };
+
+    const displayedSymptoms = getDisplayedSymptoms();
+
+    // Count selected symptoms per category (for badges)
+    const getSelectedCountByCategory = (categoryId: string) => {
+        return state.selectedSymptoms.filter(selected => {
+            const symptom = symptomsList.find(s => s.id === selected.id);
+            return symptom?.category === categoryId;
+        }).length;
+    };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             <div className="text-center relative z-10">
                 <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 mb-2">
                     بماذا تشعر؟
@@ -59,65 +86,150 @@ const StepSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
                 <p className="text-slate-500">اختر الأعراض التي تعاني منها حالياً وسنساعدك في التشخيص.</p>
             </div>
 
-            {/* Categories */}
-            <div className="flex gap-3 overflow-x-auto pb-4 pt-2 px-2 scrollbar-hide -mx-2">
-                {symptomCategories.map((cat) => (
+            {/* Search Bar */}
+            <div className="relative">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <input
+                    type="text"
+                    placeholder="ابحث عن عرض معين..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setIsSearchMode(e.target.value.trim().length > 0);
+                    }}
+                    onFocus={() => searchQuery.trim() && setIsSearchMode(true)}
+                    className="w-full pr-12 pl-4 py-3.5 bg-white/60 backdrop-blur-md border border-white/50 rounded-2xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-700 placeholder:text-slate-400"
+                />
+                {searchQuery && (
                     <button
-                        key={cat.id}
-                        onClick={() => setActiveCategory(cat.id)}
-                        className={cn(
-                            "px-5 py-2.5 rounded-2xl text-sm font-medium whitespace-nowrap transition-all duration-300 backdrop-blur-md",
-                            activeCategory === cat.id
-                                ? "bg-slate-900/90 text-white shadow-lg shadow-slate-900/20 scale-105"
-                                : "bg-white/40 text-slate-600 hover:bg-white/60 border border-white/50"
-                        )}
+                        onClick={() => {
+                            setSearchQuery('');
+                            setIsSearchMode(false);
+                        }}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     >
-                        {cat.name}
+                        <X size={18} />
                     </button>
-                ))}
+                )}
             </div>
 
-            {/* Symptoms Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 h-96 overflow-y-auto pr-2 custom-scrollbar">
-                {filteredSymptoms.map((symptom) => {
-                    const isSelected = state.selectedSymptoms.find((s) => s.id === symptom.id);
-                    return (
-                        <motion.button
-                            key={symptom.id}
-                            layout
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => toggleSymptom(symptom)}
-                            className={cn(
-                                "glass-card p-5 flex flex-col justify-between h-28 text-right group relative",
-                                isSelected && "selected border-primary/50 bg-primary/5"
-                            )}
-                        >
-                            <span className={cn(
-                                "font-bold text-lg transition-colors",
-                                isSelected ? "text-primary" : "text-slate-700 group-hover:text-slate-900"
-                            )}>
-                                {symptom.name_ar || symptom.name}
-                            </span>
+            {/* Selected Symptoms Count */}
+            {state.selectedSymptoms.length > 0 && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl">
+                    <Check size={18} className="text-primary" />
+                    <span className="text-primary font-medium">
+                        تم اختيار {state.selectedSymptoms.length} عرض
+                    </span>
+                </div>
+            )}
 
-                            {isSelected ? (
-                                <motion.span
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="text-xs px-2.5 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 self-start font-medium"
-                                >
-                                    {isSelected.severity === 'mild' ? 'خفيف' : isSelected.severity === 'moderate' ? 'محتمل' : 'شديد'}
-                                </motion.span>
-                            ) : (
-                                <div className="absolute bottom-4 left-4 w-8 h-8 rounded-full bg-slate-100/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Activity size={16} className="text-slate-400" />
-                                </div>
-                            )}
-                        </motion.button>
-                    );
-                })}
+            {/* Categories (hidden when searching) */}
+            {!isSearchMode && (
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {symptomCategories.map((cat) => {
+                        const selectedCount = getSelectedCountByCategory(cat.id);
+                        return (
+                            <button
+                                key={cat.id}
+                                onClick={() => setActiveCategory(cat.id)}
+                                className={cn(
+                                    "px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 backdrop-blur-md relative",
+                                    activeCategory === cat.id
+                                        ? "bg-slate-900/90 text-white shadow-lg shadow-slate-900/20"
+                                        : "bg-white/40 text-slate-600 hover:bg-white/60 border border-white/50"
+                                )}
+                            >
+                                {cat.name}
+                                {selectedCount > 0 && (
+                                    <span className="absolute -top-1 -left-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg">
+                                        {selectedCount}
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Search Mode Header */}
+            {isSearchMode && (
+                <div className="flex items-center justify-between px-2">
+                    <span className="text-sm text-slate-500">
+                        نتائج البحث: {displayedSymptoms.length} عرض
+                    </span>
+                    <button
+                        onClick={() => {
+                            setSearchQuery('');
+                            setIsSearchMode(false);
+                        }}
+                        className="text-sm text-primary hover:underline"
+                    >
+                        عرض الأجهزة
+                    </button>
+                </div>
+            )}
+
+            {/* Symptoms Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
+                {displayedSymptoms.length === 0 ? (
+                    <div className="col-span-full text-center py-12 text-slate-500">
+                        {isSearchMode ? 'لم يتم العثور على نتائج' : 'لا توجد أعراض في هذا القسم'}
+                    </div>
+                ) : (
+                    displayedSymptoms.map((symptom) => {
+                        const isSelected = state.selectedSymptoms.find((s) => s.id === symptom.id);
+                        return (
+                            <motion.button
+                                key={`${symptom.id}-${symptom.category}`}
+                                layout
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => toggleSymptom(symptom)}
+                                className={cn(
+                                    "glass-card p-4 flex flex-col justify-between min-h-[6rem] text-right group relative",
+                                    isSelected && "selected border-primary/50 bg-primary/5"
+                                )}
+                            >
+                                {/* Selected Checkmark */}
+                                {isSelected && (
+                                    <div className="absolute top-2 left-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                                        <Check size={14} className="text-white" />
+                                    </div>
+                                )}
+
+                                <span className={cn(
+                                    "font-bold text-base transition-colors leading-tight",
+                                    isSelected ? "text-primary" : "text-slate-700 group-hover:text-slate-900"
+                                )}>
+                                    {symptom.name_ar || symptom.name}
+                                </span>
+
+                                {/* Show category when in search mode */}
+                                {isSearchMode && (
+                                    <span className="text-xs text-slate-400 mt-1">
+                                        {getCategoryName(symptom.category)}
+                                    </span>
+                                )}
+
+                                {isSelected ? (
+                                    <motion.span
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="text-xs px-2 py-0.5 rounded-lg bg-primary/10 text-primary border border-primary/20 self-start font-medium mt-1"
+                                    >
+                                        {isSelected.severity === 'mild' ? 'خفيف' : isSelected.severity === 'moderate' ? 'متوسط' : 'شديد'}
+                                    </motion.span>
+                                ) : (
+                                    <div className="absolute bottom-3 left-3 w-7 h-7 rounded-full bg-slate-100/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Activity size={14} className="text-slate-400" />
+                                    </div>
+                                )}
+                            </motion.button>
+                        );
+                    })
+                )}
             </div>
 
             {/* Severity Modal */}
@@ -176,7 +288,7 @@ const StepSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
                 )}
             </AnimatePresence>
 
-            <div className="pt-6 flex justify-between border-t border-slate-200/50">
+            <div className="pt-4 flex justify-between border-t border-slate-200/50">
                 <button
                     onClick={onPrev}
                     className="glass-button px-8 py-3 hover:bg-white/60"
@@ -196,3 +308,4 @@ const StepSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
 };
 
 export default StepSymptoms;
+
