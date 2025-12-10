@@ -28,12 +28,28 @@ const StepSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
         loadData();
     }, []);
 
+    // Helper function to get symptom name for matching
+    const getSymptomName = (symptom: Symptom) => {
+        return (symptom.name_ar || symptom.name || '').toLowerCase().trim();
+    };
+
+    // Check if a symptom is already selected (by name, not just ID)
+    const isSymptomSelected = (symptom: Symptom) => {
+        const symptomName = getSymptomName(symptom);
+        return state.selectedSymptoms.find(selected => {
+            const selectedSymptom = symptomsList.find(s => s.id === selected.id);
+            if (!selectedSymptom) return selected.id === symptom.id;
+            return getSymptomName(selectedSymptom) === symptomName;
+        });
+    };
+
     const toggleSymptom = (symptom: Symptom) => {
-        const exists = state.selectedSymptoms.find((s) => s.id === symptom.id);
-        if (exists) {
+        const existingSelection = isSymptomSelected(symptom);
+        if (existingSelection) {
+            // Remove by ID of the originally selected symptom
             setState((prev) => ({
                 ...prev,
-                selectedSymptoms: prev.selectedSymptoms.filter((s) => s.id !== symptom.id),
+                selectedSymptoms: prev.selectedSymptoms.filter((s) => s.id !== existingSelection.id),
             }));
         } else {
             setSelectedSymptomForSeverity(symptom);
@@ -177,7 +193,7 @@ const StepSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
                     </div>
                 ) : (
                     displayedSymptoms.map((symptom) => {
-                        const isSelected = state.selectedSymptoms.find((s) => s.id === symptom.id);
+                        const isSelected = isSymptomSelected(symptom);
                         return (
                             <motion.button
                                 key={`${symptom.id}-${symptom.category}`}
