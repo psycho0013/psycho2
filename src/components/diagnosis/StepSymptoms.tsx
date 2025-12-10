@@ -99,7 +99,7 @@ const StepSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
                                 "font-bold text-lg transition-colors",
                                 isSelected ? "text-primary" : "text-slate-700 group-hover:text-slate-900"
                             )}>
-                                {symptom.name}
+                                {symptom.name_ar || symptom.name}
                             </span>
 
                             {isSelected ? (
@@ -138,7 +138,7 @@ const StepSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
                             className="glass-panel p-6 w-full max-w-sm relative z-10"
                         >
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-bold text-slate-900">ما مدى حدة {selectedSymptomForSeverity.name}؟</h3>
+                                <h3 className="text-xl font-bold text-slate-900">ما مدى حدة {selectedSymptomForSeverity.name_ar || selectedSymptomForSeverity.name}؟</h3>
                                 <button onClick={() => setSelectedSymptomForSeverity(null)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors">
                                     <X size={18} />
                                 </button>

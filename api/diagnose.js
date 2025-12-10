@@ -165,11 +165,11 @@ module.exports = async (req, res) => {
     // ═══════════════════════════════════════════════════════════════
     console.log('🤖 STAGE 2: Sending candidates to GPT-4o...');
 
-    // Map symptom IDs to names for AI
+    // Map symptom IDs to names for AI (prefer Arabic names)
     const symptomNames = symptoms; // Already names from frontend
     const relatedSymptomNames = (relatedSymptoms || []).map(id => {
       const sym = allSymptomsDB.find(s => s.id === id);
-      return sym?.name || id;
+      return sym?.name_ar || sym?.name || id;
     });
 
     // Prepare minimal candidate data for AI
@@ -178,11 +178,11 @@ module.exports = async (req, res) => {
       description: c.disease.description,
       symptoms: c.disease.symptoms.map(id => {
         const sym = allSymptomsDB.find(s => s.id === id);
-        return sym?.name || id;
+        return sym?.name_ar || sym?.name || id;
       }),
       matched_symptoms: c.matchedSymptoms.map(id => {
         const sym = allSymptomsDB.find(s => s.id === id);
-        return sym?.name || id;
+        return sym?.name_ar || sym?.name || id;
       }),
       preliminary_score: Math.round(c.score),
       diagnosis_method: c.disease.diagnosis_method

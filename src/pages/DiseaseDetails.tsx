@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Activity, Shield, AlertTriangle, Stethoscope, BookOpen, ChevronLeft } from 'lucide-react';
-import type { Disease, Treatment } from '@/types/medical';
+import type { Disease, Treatment, Symptom } from '@/types/medical';
 import DbManager from '@/services/dbManager';
 
 
@@ -11,19 +11,32 @@ const DiseaseDetails = () => {
     const navigate = useNavigate();
     const [disease, setDisease] = useState<Disease | null>(null);
     const [diseasesTreatments, setDiseasesTreatments] = useState<Treatment[]>([]);
+    const [allSymptoms, setAllSymptoms] = useState<Symptom[]>([]);
 
     useEffect(() => {
         const loadData = async () => {
             if (!id) return;
-            const [fetchedDisease, allTreatments] = await Promise.all([
+            const [fetchedDisease, allTreatments, symptoms] = await Promise.all([
                 DbManager.getDisease(id),
-                DbManager.getTreatments()
+                DbManager.getTreatments(),
+                DbManager.getSymptoms()
             ]);
             setDisease(fetchedDisease);
             setDiseasesTreatments(allTreatments);
+            setAllSymptoms(symptoms);
         };
         loadData();
     }, [id]);
+
+    // Helper function to get symptom name in Arabic
+    const getSymptomName = (symptomId: string): string => {
+        const symptom = allSymptoms.find(s => s.id === symptomId);
+        if (symptom) {
+            // Prefer Arabic name, fallback to general name
+            return symptom.name_ar || symptom.name || symptomId;
+        }
+        return symptomId;
+    };
 
     if (!disease) {
         return (
@@ -90,9 +103,9 @@ const DiseaseDetails = () => {
                             الأعراض الشائعة
                         </h3>
                         <div className="flex flex-wrap gap-3">
-                            {disease.symptoms.map((symptom) => (
-                                <span key={symptom} className="px-4 py-2 bg-rose-50/80 hover:bg-rose-100 text-rose-700 rounded-xl font-bold border border-rose-100 transition-colors cursor-default">
-                                    {symptom}
+                            {disease.symptoms.map((symptomId) => (
+                                <span key={symptomId} className="px-4 py-2 bg-rose-50/80 hover:bg-rose-100 text-rose-700 rounded-xl font-bold border border-rose-100 transition-colors cursor-default">
+                                    {getSymptomName(symptomId)}
                                 </span>
                             ))}
                         </div>

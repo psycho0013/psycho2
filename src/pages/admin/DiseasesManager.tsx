@@ -203,7 +203,7 @@ const DiseasesManager = () => {
                                                 className="w-4 h-4 text-primary rounded focus:ring-2 focus:ring-primary/20"
                                             />
                                             <div className="flex-1">
-                                                <span className="font-medium text-slate-700">{symptom.name}</span>
+                                                <span className="font-medium text-slate-700">{symptom.name_ar || symptom.name}</span>
                                                 <span className="text-xs text-slate-400 mr-2">({symptom.category})</span>
                                             </div>
                                         </label>
@@ -242,8 +242,8 @@ const DiseasesManager = () => {
                                                     className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
                                                 />
                                                 <span className={`text-sm font-bold w-12 text-center rounded-lg py-1 ${weight >= 80 ? 'bg-red-100 text-red-700' :
-                                                        weight >= 50 ? 'bg-amber-100 text-amber-700' :
-                                                            'bg-slate-100 text-slate-600'
+                                                    weight >= 50 ? 'bg-amber-100 text-amber-700' :
+                                                        'bg-slate-100 text-slate-600'
                                                     }`}>
                                                     {weight}%
                                                 </span>

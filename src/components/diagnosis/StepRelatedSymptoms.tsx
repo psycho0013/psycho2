@@ -87,7 +87,7 @@ const StepRelatedSymptoms = ({ state, setState, onNext, onPrev }: Props) => {
                                     "font-bold text-lg transition-colors",
                                     isSelected ? "text-primary" : "text-slate-700"
                                 )}>
-                                    {symptom.name}
+                                    {symptom.name_ar || symptom.name}
                                 </span>
                                 <div className={cn(
                                     "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm",

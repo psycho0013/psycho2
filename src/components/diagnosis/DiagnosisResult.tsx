@@ -47,13 +47,13 @@ const DiagnosisResult = ({ state }: Props) => {
             // Map selected symptom IDs to names
             const symptomNames = state.selectedSymptoms.map(s => {
                 const symptom = allSymptoms.find(sym => sym.id === s.id);
-                return symptom ? symptom.name : s.id;
+                return symptom ? (symptom.name_ar || symptom.name) : s.id;
             });
 
             // Also include related symptoms (which are just IDs in state.relatedSymptoms)
             const relatedSymptomNames = state.relatedSymptoms.map(id => {
                 const symptom = allSymptoms.find(sym => sym.id === id);
-                return symptom ? symptom.name : id;
+                return symptom ? (symptom.name_ar || symptom.name) : id;
             });
 
             const allSymptomNames = [...symptomNames, ...relatedSymptomNames];
