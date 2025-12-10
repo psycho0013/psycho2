@@ -22,6 +22,7 @@ import TreatmentsManager from './pages/admin/TreatmentsManager';
 import DirectoryManager from './pages/admin/DirectoryManager';
 import DataManager from './pages/admin/DataManager';
 import Settings from './pages/admin/Settings';
+import MessagesManager from './pages/admin/MessagesManager';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
             <Route path="symptoms" element={<SymptomsManager />} />
             <Route path="treatments" element={<TreatmentsManager />} />
             <Route path="directory" element={<DirectoryManager />} />
+            <Route path="messages" element={<MessagesManager />} />
             <Route path="data" element={<DataManager />} />
             <Route path="settings" element={<Settings />} />
           </Route>

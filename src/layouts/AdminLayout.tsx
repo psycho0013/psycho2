@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileText, LogOut, ExternalLink, Settings, BookOpen, Pill, Building2, Database, Activity } from 'lucide-react';
+import { LayoutDashboard, FileText, LogOut, ExternalLink, Settings, BookOpen, Pill, Building2, Database, Activity, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const AdminLayout = () => {
@@ -17,6 +17,7 @@ const AdminLayout = () => {
         { path: '/admin/treatments', label: 'إدارة العلاجات', icon: Pill },
         { path: '/admin/symptoms', label: 'إدارة الأعراض', icon: Activity },
         { path: '/admin/directory', label: 'إدارة الدليل', icon: Building2 },
+        { path: '/admin/messages', label: 'الرسائل', icon: MessageSquare },
         { path: '/admin/data', label: 'إدارة البيانات', icon: Database },
         { path: '/admin/settings', label: 'الإعدادات', icon: Settings },
     ];
