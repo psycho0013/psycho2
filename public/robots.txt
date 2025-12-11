@@ -1,5 +1,5 @@
 # SmartTashkhees Robots.txt
-# https://smarttashkhees.vercel.app
+# https://smarttashkhees-rust.vercel.app
 
 # Allow all crawlers
 User-agent: *
@@ -10,7 +10,7 @@ Disallow: /admin
 Disallow: /admin/*
 
 # Sitemap location
-Sitemap: https://smarttashkhees.vercel.app/sitemap.xml
+Sitemap: https://smarttashkhees-rust.vercel.app/sitemap.xml
 
 # Crawl delay (optional - be nice to the server)
 Crawl-delay: 1
