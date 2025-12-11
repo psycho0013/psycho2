@@ -1,0 +1,16 @@
+# SmartTashkhees Robots.txt
+# https://smarttashkhees.vercel.app
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin pages from indexing
+Disallow: /admin
+Disallow: /admin/*
+
+# Sitemap location
+Sitemap: https://smarttashkhees.vercel.app/sitemap.xml
+
+# Crawl delay (optional - be nice to the server)
+Crawl-delay: 1

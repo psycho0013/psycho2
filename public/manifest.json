@@ -1,0 +1,58 @@
+{
+    "name": "SmartTashkhees - تشخيص طبي ذكي",
+    "short_name": "SmartTashkhees",
+    "description": "نظام تشخيص طبي ذكي يعتمد على الذكاء الاصطناعي",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#10b981",
+    "orientation": "portrait-primary",
+    "lang": "ar",
+    "dir": "rtl",
+    "categories": [
+        "medical",
+        "health",
+        "lifestyle"
+    ],
+    "icons": [
+        {
+            "src": "/po.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/po.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "التشخيص الذكي",
+            "short_name": "تشخيص",
+            "description": "ابدأ التشخيص الآن",
+            "url": "/diagnosis",
+            "icons": [
+                {
+                    "src": "/po.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "التوعية الصحية",
+            "short_name": "توعية",
+            "description": "تعرف على الأمراض والعلاجات",
+            "url": "/awareness",
+            "icons": [
+                {
+                    "src": "/po.png",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- الصفحة الرئيسية -->
+  <url>
+    <loc>https://smarttashkhees.vercel.app/</loc>
+    <lastmod>2024-12-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- التشخيص الذكي -->
+  <url>
+    <loc>https://smarttashkhees.vercel.app/diagnosis</loc>
+    <lastmod>2024-12-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- تشخيص المختبر -->
+  <url>
+    <loc>https://smarttashkhees.vercel.app/lab-diagnosis</loc>
+    <lastmod>2024-12-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- التوعية الصحية -->
+  <url>
+    <loc>https://smarttashkhees.vercel.app/awareness</loc>
+    <lastmod>2024-12-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- الدليل الطبي -->
+  <url>
+    <loc>https://smarttashkhees.vercel.app/directory</loc>
+    <lastmod>2024-12-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- من نحن -->
+  <url>
+    <loc>https://smarttashkhees.vercel.app/about</loc>
+    <lastmod>2024-12-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <!-- اتصل بنا -->
+  <url>
+    <loc>https://smarttashkhees.vercel.app/contact</loc>
+    <lastmod>2024-12-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>
