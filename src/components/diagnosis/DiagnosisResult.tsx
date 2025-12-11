@@ -11,6 +11,12 @@ interface Props {
     state: DiagnosisState;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ⏱️ إعدادات وقت التحميل - يمكنك تعديل هذه القيمة لاحقاً
+// ═══════════════════════════════════════════════════════════════════════════
+const MINIMUM_LOADING_TIME_MS = 5000; // 5 ثوانٍ كحد أدنى للتحميل
+// ═══════════════════════════════════════════════════════════════════════════
+
 const DiagnosisResult = ({ state }: Props) => {
     const [loading, setLoading] = useState(true);
     const [result, setResult] = useState<any>(null);
@@ -23,6 +29,8 @@ const DiagnosisResult = ({ state }: Props) => {
             if (hasAnalyzed.current) return;
             hasAnalyzed.current = true;
 
+            const startTime = Date.now();
+
             // Fetch data
             const [diseases, treatments] = await Promise.all([
                 DbManager.getDiseases(),
@@ -30,10 +38,15 @@ const DiagnosisResult = ({ state }: Props) => {
             ]);
             setTreatmentsList(treatments);
 
-            // Simulate AI analysis delay
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            // Run diagnosis and wait for it to complete
+            await calculateDiagnosis(diseases);
 
-            calculateDiagnosis(diseases);
+            // Ensure minimum loading time for UX
+            const elapsed = Date.now() - startTime;
+            if (elapsed < MINIMUM_LOADING_TIME_MS) {
+                await new Promise(resolve => setTimeout(resolve, MINIMUM_LOADING_TIME_MS - elapsed));
+            }
+
             setLoading(false);
         };
         analyze();
