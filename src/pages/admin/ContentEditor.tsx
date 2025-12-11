@@ -327,6 +327,85 @@ const ContentEditor = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Supervisor Section */}
+                        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+                            <h3 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-4">معلومات المشرف</h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">الاسم</label>
+                                    <input
+                                        type="text"
+                                        value={content.about.supervisor?.name || ''}
+                                        onChange={(e) => updateField('about.supervisor.name', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                        placeholder="د. ..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">المسمى الوظيفي</label>
+                                    <input
+                                        type="text"
+                                        value={content.about.supervisor?.role || ''}
+                                        onChange={(e) => updateField('about.supervisor.role', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">القسم</label>
+                                    <input
+                                        type="text"
+                                        value={content.about.supervisor?.department || ''}
+                                        onChange={(e) => updateField('about.supervisor.department', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">نبذة مختصرة</label>
+                                    <textarea
+                                        value={content.about.supervisor?.bio || ''}
+                                        onChange={(e) => updateField('about.supervisor.bio', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none h-24 resize-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">رابط الصورة</label>
+                                    <div className="flex gap-4 items-start">
+                                        <div className="flex-1">
+                                            <input
+                                                type="text"
+                                                value={content.about.supervisor?.image || ''}
+                                                onChange={(e) => updateField('about.supervisor.image', e.target.value)}
+                                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none text-left"
+                                                dir="ltr"
+                                                placeholder="https://..."
+                                            />
+                                        </div>
+                                        {content.about.supervisor?.image && (
+                                            <div className="w-16 h-16 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 shrink-0">
+                                                <img
+                                                    src={(() => {
+                                                        const url = content.about.supervisor.image;
+                                                        if (url.includes('drive.google.com')) {
+                                                            const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                                                            if (idMatch && idMatch[1]) return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+                                                            const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                                                            if (idParamMatch && idParamMatch[1]) return `https://drive.google.com/uc?export=view&id=${idParamMatch[1]}`;
+                                                        }
+                                                        return url;
+                                                    })()}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </>
                 )}
 
