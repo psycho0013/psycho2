@@ -25,6 +25,7 @@ export interface TestField {
 export interface TestDefinition {
     id: TestType;
     title: string;
+    titleAr: string;
     fields: TestField[];
 }
 
@@ -32,27 +33,29 @@ export const LAB_TESTS: TestDefinition[] = [
     {
         id: 'cbc',
         title: 'CBC (Complete Blood Count)',
+        titleAr: 'تعداد الدم الكامل',
         fields: [
-            { id: 'wbc', label: 'WBC - White Blood Cells', unit: '10^3/µL', type: 'number', min: 4.5, max: 11.0 },
-            { id: 'rbc', label: 'RBC - Red Blood Cells', unit: '10^6/µL', type: 'number', min: 4.5, max: 5.9 },
-            { id: 'hgb', label: 'HGB - Hemoglobin', unit: 'g/dL', type: 'number', min: 13.5, max: 17.5 },
-            { id: 'hct', label: 'HCT - Hematocrit', unit: '%', type: 'number', min: 41, max: 50 },
-            { id: 'mcv', label: 'MCV - Mean Corpuscular Volume', unit: 'fL', type: 'number', min: 80, max: 96 },
-            { id: 'mch', label: 'MCH - Mean Corpuscular Hemoglobin', unit: 'pg', type: 'number', min: 27, max: 33 },
-            { id: 'mchc', label: 'MCHC - Mean Corpuscular Hemoglobin Concentration', unit: 'g/dL', type: 'number', min: 33, max: 36 },
-            { id: 'rdw_cv', label: 'RDW-CV - Red Cell Distribution Width – CV', unit: '%', type: 'number', min: 11.5, max: 14.5 },
-            { id: 'rdw_sd', label: 'RDW-SD - Red Cell Distribution Width – SD', unit: 'fL', type: 'number', min: 39, max: 46 },
-            { id: 'plt', label: 'PLT - Platelets', unit: '10^3/µL', type: 'number', min: 150, max: 450 },
-            { id: 'mpv', label: 'MPV - Mean Platelet Volume', unit: 'fL', type: 'number', min: 7.4, max: 10.4 },
-            { id: 'pdw', label: 'PDW - Platelet Distribution Width', unit: 'fL', type: 'number', min: 9.0, max: 17.0 },
-            { id: 'pct', label: 'PCT - Plateletcrit', unit: '%', type: 'number', min: 0.10, max: 0.28 },
-            { id: 'p_lcr', label: 'P-LCR - Platelet Larger Cell Ratio', unit: '%', type: 'number', min: 15, max: 35 },
-            { id: 'p_lcc', label: 'P-LCC - Platelet Large Cell Count', unit: '10^9/L', type: 'number', min: 30, max: 90 },
+            { id: 'wbc', label: 'WBC - كريات الدم البيضاء (White Blood Cells)', unit: '10^3/µL', type: 'number', min: 4.5, max: 11.0 },
+            { id: 'rbc', label: 'RBC - كريات الدم الحمراء (Red Blood Cells)', unit: '10^6/µL', type: 'number', min: 4.5, max: 5.9 },
+            { id: 'hgb', label: 'HGB - الهيموغلوبين (Hemoglobin)', unit: 'g/dL', type: 'number', min: 13.5, max: 17.5 },
+            { id: 'hct', label: 'HCT - الهيماتوكريت (Hematocrit)', unit: '%', type: 'number', min: 41, max: 50 },
+            { id: 'mcv', label: 'MCV - متوسط حجم الكرية (Mean Corpuscular Volume)', unit: 'fL', type: 'number', min: 80, max: 96 },
+            { id: 'mch', label: 'MCH - متوسط هيموغلوبين الكرية (Mean Corpuscular Hemoglobin)', unit: 'pg', type: 'number', min: 27, max: 33 },
+            { id: 'mchc', label: 'MCHC - تركيز هيموغلوبين الكرية (Mean Corpuscular Hemoglobin Concentration)', unit: 'g/dL', type: 'number', min: 33, max: 36 },
+            { id: 'rdw_cv', label: 'RDW-CV - توزيع حجم الكريات الحمراء (Red Cell Distribution Width – CV)', unit: '%', type: 'number', min: 11.5, max: 14.5 },
+            { id: 'rdw_sd', label: 'RDW-SD - توزيع حجم الكريات الحمراء (Red Cell Distribution Width – SD)', unit: 'fL', type: 'number', min: 39, max: 46 },
+            { id: 'plt', label: 'PLT - الصفيحات الدموية (Platelets)', unit: '10^3/µL', type: 'number', min: 150, max: 450 },
+            { id: 'mpv', label: 'MPV - متوسط حجم الصفيحات (Mean Platelet Volume)', unit: 'fL', type: 'number', min: 7.4, max: 10.4 },
+            { id: 'pdw', label: 'PDW - توزيع عرض الصفيحات (Platelet Distribution Width)', unit: 'fL', type: 'number', min: 9.0, max: 17.0 },
+            { id: 'pct', label: 'PCT - نسبة الصفيحات (Plateletcrit)', unit: '%', type: 'number', min: 0.10, max: 0.28 },
+            { id: 'p_lcr', label: 'P-LCR - نسبة الصفيحات الكبيرة (Platelet Larger Cell Ratio)', unit: '%', type: 'number', min: 15, max: 35 },
+            { id: 'p_lcc', label: 'P-LCC - عدد الصفيحات الكبيرة (Platelet Large Cell Count)', unit: '10^9/L', type: 'number', min: 30, max: 90 },
         ]
     },
     {
         id: 'kidney',
-        title: 'Kidney Function Test',
+        title: 'RFT (Renal Function Test)',
+        titleAr: 'وظائف الكلى',
         fields: [
             { id: 'bun', label: 'Urea (BUN) - اليوريا', unit: 'mg/dL', type: 'number', min: 7, max: 20 },
             { id: 'creatinine', label: 'Creatinine - الكرياتينين', unit: 'mg/dL', type: 'number', min: 0.6, max: 1.2 },
@@ -66,7 +69,8 @@ export const LAB_TESTS: TestDefinition[] = [
     },
     {
         id: 'liver',
-        title: 'Liver Function Test',
+        title: 'LFT (Liver Function Test)',
+        titleAr: 'وظائف الكبد',
         fields: [
             { id: 'ast', label: 'AST (SGOT) - إنزيم الكبد', unit: 'U/L', type: 'number', min: 10, max: 40 },
             { id: 'alt', label: 'ALT (SGPT) - إنزيم الكبد', unit: 'U/L', type: 'number', min: 7, max: 56 },
@@ -81,7 +85,8 @@ export const LAB_TESTS: TestDefinition[] = [
     },
     {
         id: 'thyroid',
-        title: 'Thyroid Function Test',
+        title: 'TFT (Thyroid Function Test)',
+        titleAr: 'وظائف الغدة الدرقية',
         fields: [
             { id: 'tsh', label: 'TSH - الهرمون المنبه للدرقية', unit: 'mIU/L', type: 'number', min: 0.4, max: 4.0 },
             { id: 'free_t4', label: 'Free T4 - الثيروكسين الحر', unit: 'ng/dL', type: 'number', min: 0.8, max: 1.8 },
@@ -91,6 +96,7 @@ export const LAB_TESTS: TestDefinition[] = [
     {
         id: 'sugar',
         title: 'Blood Sugar Tests',
+        titleAr: 'فحوصات السكر',
         fields: [
             { id: 'fbs', label: 'Fasting Blood Sugar (FBS) - سكر الدم الصائم', unit: 'mg/dL', type: 'number', min: 70, max: 100 },
             { id: 'fasting_hours', label: 'عدد ساعات الصيام (لـ FBS)', unit: 'ساعة', type: 'number', min: 0, max: 24 },
@@ -102,6 +108,7 @@ export const LAB_TESTS: TestDefinition[] = [
     {
         id: 'lipid',
         title: 'Lipid Profile',
+        titleAr: 'صورة الدهون',
         fields: [
             { id: 'total_cholesterol', label: 'Total Cholesterol - الكوليسترول الكلي', unit: 'mg/dL', type: 'number', min: 0, max: 200 },
             { id: 'ldl', label: 'LDL (Bad Cholesterol) - الكوليسترول الضار', unit: 'mg/dL', type: 'number', min: 0, max: 100 },
@@ -113,6 +120,7 @@ export const LAB_TESTS: TestDefinition[] = [
     {
         id: 'vitamin',
         title: 'Vitamin Tests',
+        titleAr: 'فحوصات الفيتامينات',
         fields: [
             { id: 'vit_d', label: 'Vitamin D - فيتامين د', unit: 'ng/mL', type: 'number', min: 30, max: 100 },
             { id: 'vit_b12', label: 'Vitamin B12 - فيتامين ب12', unit: 'pg/mL', type: 'number', min: 200, max: 900 },
@@ -122,6 +130,7 @@ export const LAB_TESTS: TestDefinition[] = [
     {
         id: 'iron',
         title: 'Iron Studies',
+        titleAr: 'دراسة الحديد',
         fields: [
             { id: 'serum_iron', label: 'Serum Iron - حديد المصل', unit: 'µg/dL', type: 'number', min: 60, max: 170 },
             { id: 'ferritin', label: 'Ferritin - مخزون الحديد', unit: 'ng/mL', type: 'number', min: 12, max: 300 },
@@ -131,7 +140,8 @@ export const LAB_TESTS: TestDefinition[] = [
     },
     {
         id: 'urine',
-        title: 'Urine Analysis',
+        title: 'G.U.E (General Urine Examination)',
+        titleAr: 'فحص البول العام',
         fields: [
             { id: 'color', label: 'Color - اللون', type: 'text' },
             { id: 'appearance', label: 'Appearance - المظهر', type: 'text' },
@@ -155,7 +165,8 @@ export const LAB_TESTS: TestDefinition[] = [
     },
     {
         id: 'stool',
-        title: 'Stool Analysis',
+        title: 'G.S.E (General Stool Examination)',
+        titleAr: 'فحص البراز العام',
         fields: [
             { id: 'color', label: 'Color - اللون', type: 'text' },
             { id: 'consistency', label: 'Consistency - القوام', type: 'text' },

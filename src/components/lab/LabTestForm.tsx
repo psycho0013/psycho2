@@ -24,8 +24,8 @@ const LabTestForm = ({ testType, data, update, onNext, onBack }: Props) => {
                         <Beaker size={24} />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-slate-900">{testDef.title}</h2>
-                        <p className="text-sm text-slate-500">أدخل قيم الفحص كما في ورقة التحليل</p>
+                        <h2 className="text-2xl font-bold text-slate-900">{testDef.titleAr}</h2>
+                        <p className="text-sm text-slate-500 font-medium">{testDef.title}</p>
                     </div>
                 </div>
                 <button onClick={onBack} className="text-sm px-4 py-2 rounded-lg bg-white/50 hover:bg-white text-slate-500 hover:text-red-500 transition-all">

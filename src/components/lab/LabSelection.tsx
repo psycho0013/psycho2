@@ -57,10 +57,10 @@ const LabSelection = ({ onSelect }: Props) => {
 
                             <div className="flex flex-col gap-1 z-10">
                                 <span className="font-bold text-lg text-slate-800 group-hover:text-primary transition-colors">
-                                    {test.title}
+                                    {test.titleAr}
                                 </span>
-                                <span className="text-xs text-slate-400 group-hover:text-slate-500 transition-colors">
-                                    تحليل فوري دقيق
+                                <span className="text-xs text-slate-400 group-hover:text-slate-500 transition-colors font-medium">
+                                    {test.title}
                                 </span>
                             </div>
 
