@@ -21,6 +21,7 @@ const DiagnosisResult = ({ state }: Props) => {
     const [loading, setLoading] = useState(true);
     const [result, setResult] = useState<any>(null);
     const [isEmergency, setIsEmergency] = useState(false);
+    const [confidenceScore, setConfidenceScore] = useState<number>(0);
     const [treatmentsList, setTreatmentsList] = useState<Treatment[]>([]);
     const hasAnalyzed = useRef(false);
 
@@ -90,7 +91,13 @@ const DiagnosisResult = ({ state }: Props) => {
                     relatedSymptoms: state.relatedSymptoms, // string[] of IDs
                     age: state.personalInfo.age,
                     gender: state.personalInfo.gender === 'male' ? 'Male' : 'Female',
-                    notes: `Weight: ${state.personalInfo.weight}, Height: ${state.personalInfo.height}, Chronic Diseases: ${state.vitals.chronicDiseases.join(', ')}, Pregnant: ${state.personalInfo.isPregnant}, Breastfeeding: ${state.personalInfo.isBreastfeeding}`
+                    // إرسال البيانات المنظمة بدلاً من notes string
+                    weight: state.personalInfo.weight,
+                    height: state.personalInfo.height,
+                    chronicDiseases: state.vitals.chronicDiseases,
+                    isPregnant: state.personalInfo.isPregnant,
+                    isBreastfeeding: state.personalInfo.isBreastfeeding,
+                    governorate: state.personalInfo.governorate
                 }),
             });
 
@@ -119,27 +126,31 @@ const DiagnosisResult = ({ state }: Props) => {
                     console.log('🎯 Database Match Found:', matchedDisease.name);
                     setResult(matchedDisease);
 
-                    // Emergency detection using database-driven is_critical field
-                    // Check if any selected symptom is marked as critical in database AND has severe severity
-                    const hasCriticalSymptom = state.selectedSymptoms.some(s => {
-                        const symptom = allSymptoms.find(sym => sym.id === s.id);
-                        return symptom?.is_critical === true;
-                    });
+                    // حفظ نسبة الثقة من الذكاء الاصطناعي
+                    const aiConfidence = topDiagnosis.confidence || 0;
+                    setConfidenceScore(aiConfidence);
 
-                    const hasSevereSeverity = state.selectedSymptoms.some(s => s.severity === 'severe');
+                    // Emergency detection: استخدام نتيجة الذكاء الاصطناعي المحسّن
+                    // الـ API الجديد يُرجع emergency_alert بناءً على تحليل شامل
+                    let emergencyStatus = data.emergency_alert || false;
 
-                    // Emergency = Critical symptom + Severe severity
-                    const emergencyStatus = hasCriticalSymptom && hasSevereSeverity;
+                    // إضافة فحص محلي كـ fallback
+                    if (!emergencyStatus) {
+                        const hasCriticalSymptom = state.selectedSymptoms.some(s => {
+                            const symptom = allSymptoms.find(sym => sym.id === s.id);
+                            return symptom?.is_critical === true;
+                        });
+                        const hasSevereSeverity = state.selectedSymptoms.some(s => s.severity === 'severe');
+                        emergencyStatus = hasCriticalSymptom && hasSevereSeverity;
+                    }
 
                     console.log('🚨 Emergency Check:', {
-                        hasCriticalSymptom,
-                        hasSevereSeverity,
-                        emergencyStatus,
-                        criticalSymptoms: state.selectedSymptoms.filter(s => {
-                            const sym = allSymptoms.find(x => x.id === s.id);
-                            return sym?.is_critical;
-                        }).map(s => s.id)
+                        aiEmergencyAlert: data.emergency_alert,
+                        aiEmergencyReason: data.emergency_reason,
+                        finalStatus: emergencyStatus,
+                        topDiagnosisSeverity: topDiagnosis.severity_assessment
                     });
+
                     setIsEmergency(emergencyStatus);
                     StatisticsManager.saveDiagnosis(state, matchedDisease, emergencyStatus);
                 } else {
@@ -202,6 +213,69 @@ const DiagnosisResult = ({ state }: Props) => {
                     <div className="p-8">
                         <div className="text-center mb-10">
                             <h3 className="text-4xl font-bold text-slate-900 mb-4">{result.name}</h3>
+
+                            {/* ═══════════ نسبة الدقة مع انميشن ═══════════ */}
+                            <motion.div
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                                className="inline-flex flex-col items-center my-6"
+                            >
+                                <div className="relative w-32 h-32">
+                                    {/* Background circle */}
+                                    <svg className="w-full h-full transform -rotate-90">
+                                        <circle
+                                            cx="64"
+                                            cy="64"
+                                            r="56"
+                                            stroke="#e2e8f0"
+                                            strokeWidth="8"
+                                            fill="none"
+                                        />
+                                        {/* Progress circle */}
+                                        <motion.circle
+                                            cx="64"
+                                            cy="64"
+                                            r="56"
+                                            stroke={confidenceScore >= 80 ? '#10b981' : confidenceScore >= 60 ? '#f59e0b' : '#ef4444'}
+                                            strokeWidth="8"
+                                            fill="none"
+                                            strokeLinecap="round"
+                                            strokeDasharray={`${2 * Math.PI * 56}`}
+                                            initial={{ strokeDashoffset: 2 * Math.PI * 56 }}
+                                            animate={{ strokeDashoffset: 2 * Math.PI * 56 * (1 - confidenceScore / 100) }}
+                                            transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+                                        />
+                                    </svg>
+                                    {/* Percentage text */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <motion.span
+                                            className="text-3xl font-bold"
+                                            style={{ color: confidenceScore >= 80 ? '#10b981' : confidenceScore >= 60 ? '#f59e0b' : '#ef4444' }}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 1 }}
+                                        >
+                                            {confidenceScore}%
+                                        </motion.span>
+                                        <span className="text-xs text-slate-500">نسبة الدقة</span>
+                                    </div>
+                                </div>
+                                <motion.p
+                                    className="mt-3 text-sm font-medium px-4 py-1 rounded-full"
+                                    style={{
+                                        backgroundColor: confidenceScore >= 80 ? '#d1fae5' : confidenceScore >= 60 ? '#fef3c7' : '#fee2e2',
+                                        color: confidenceScore >= 80 ? '#065f46' : confidenceScore >= 60 ? '#92400e' : '#991b1b'
+                                    }}
+                                    initial={{ y: 10, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.2 }}
+                                >
+                                    {confidenceScore >= 80 ? 'دقة عالية ✓' : confidenceScore >= 60 ? 'دقة متوسطة' : 'دقة منخفضة - راجع طبيب'}
+                                </motion.p>
+                            </motion.div>
+                            {/* ═══════════════════════════════════════════ */}
+
                             <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
                                 {result.description}
                             </p>
