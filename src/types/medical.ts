@@ -21,6 +21,14 @@ export interface Treatment {
     instructions?: string;
     duration?: string;
     price?: number;
+    // ═══════════════════════════════════════════════════════════════════
+    // موانع الاستخدام - Contraindications
+    // ═══════════════════════════════════════════════════════════════════
+    contraindicated_pregnancy?: boolean;      // ممنوع للحوامل
+    contraindicated_breastfeeding?: boolean;  // ممنوع للمرضعات
+    contraindicated_chronic_diseases?: string[]; // ممنوع لمرضى: السكري، الضغط، إلخ
+    age_restriction_min?: number;             // الحد الأدنى للعمر
+    age_restriction_max?: number;             // الحد الأقصى للعمر
 }
 
 export interface Disease {

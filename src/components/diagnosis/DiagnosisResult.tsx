@@ -290,15 +290,76 @@ const DiagnosisResult = ({ state }: Props) => {
                                 <ul className="space-y-3">
                                     {result.treatments.map((tId: string) => {
                                         const treatment = treatmentsList.find(t => t.id === tId);
-                                        return treatment ? (
-                                            <li key={tId} className="flex items-start gap-3 text-slate-700">
-                                                <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 shrink-0" />
-                                                <span>
-                                                    <span className="font-medium block">{treatment.name}</span>
-                                                    <span className="text-sm text-slate-500">{treatment.dosage}</span>
-                                                </span>
+                                        if (!treatment) return null;
+
+                                        // ═══════════════════════════════════════════════════════════
+                                        // فلترة العلاجات الخطرة
+                                        // ═══════════════════════════════════════════════════════════
+                                        const contraindications: string[] = [];
+
+                                        // فحص الحمل
+                                        if (treatment.contraindicated_pregnancy && state.personalInfo.isPregnant) {
+                                            contraindications.push('🤰 ممنوع للحوامل');
+                                        }
+
+                                        // فحص الرضاعة
+                                        if (treatment.contraindicated_breastfeeding && state.personalInfo.isBreastfeeding) {
+                                            contraindications.push('🤱 ممنوع للمرضعات');
+                                        }
+
+                                        // فحص العمر
+                                        const patientAge = parseInt(state.personalInfo.age);
+                                        if (treatment.age_restriction_min && patientAge < treatment.age_restriction_min) {
+                                            contraindications.push(`👶 الحد الأدنى للعمر: ${treatment.age_restriction_min} سنة`);
+                                        }
+                                        if (treatment.age_restriction_max && patientAge > treatment.age_restriction_max) {
+                                            contraindications.push(`👴 الحد الأقصى للعمر: ${treatment.age_restriction_max} سنة`);
+                                        }
+
+                                        // فحص الأمراض المزمنة
+                                        if (treatment.contraindicated_chronic_diseases && state.vitals?.chronicDiseases) {
+                                            const patientChronic = state.vitals.chronicDiseases;
+                                            const conflicts = treatment.contraindicated_chronic_diseases.filter(
+                                                (d: string) => patientChronic.some((pc: string) =>
+                                                    pc.includes(d) || d.includes(pc)
+                                                )
+                                            );
+                                            if (conflicts.length > 0) {
+                                                contraindications.push(`⚠️ يتعارض مع: ${conflicts.join('، ')}`);
+                                            }
+                                        }
+
+                                        const isContraindicated = contraindications.length > 0;
+                                        // ═══════════════════════════════════════════════════════════
+
+                                        return (
+                                            <li
+                                                key={tId}
+                                                className={`flex items-start gap-3 p-3 rounded-lg ${isContraindicated
+                                                        ? 'bg-red-50 border border-red-200'
+                                                        : 'text-slate-700'
+                                                    }`}
+                                            >
+                                                <span className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${isContraindicated ? 'bg-red-500' : 'bg-primary'
+                                                    }`} />
+                                                <div className="flex-1">
+                                                    <span className={`font-medium block ${isContraindicated ? 'text-red-700 line-through' : ''}`}>
+                                                        {treatment.name}
+                                                        {isContraindicated && ' ❌'}
+                                                    </span>
+                                                    {!isContraindicated && (
+                                                        <span className="text-sm text-slate-500">{treatment.dosage}</span>
+                                                    )}
+                                                    {isContraindicated && (
+                                                        <div className="mt-1 text-xs text-red-600 space-y-0.5">
+                                                            {contraindications.map((c, i) => (
+                                                                <div key={i}>{c}</div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </li>
-                                        ) : null;
+                                        );
                                     })}
                                 </ul>
                             </div>

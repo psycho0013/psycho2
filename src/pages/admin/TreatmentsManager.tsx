@@ -15,7 +15,12 @@ const TreatmentsManager = () => {
         side_effects: [''],
         precautions: [''],
         instructions: '',
-        duration: ''
+        duration: '',
+        contraindicated_pregnancy: false,
+        contraindicated_breastfeeding: false,
+        contraindicated_chronic_diseases: [],
+        age_restriction_min: undefined,
+        age_restriction_max: undefined
     });
 
     useEffect(() => {
@@ -70,7 +75,12 @@ const TreatmentsManager = () => {
             side_effects: [''],
             precautions: [''],
             instructions: '',
-            duration: ''
+            duration: '',
+            contraindicated_pregnancy: false,
+            contraindicated_breastfeeding: false,
+            contraindicated_chronic_diseases: [],
+            age_restriction_min: undefined,
+            age_restriction_max: undefined
         });
         setIsEditing(false);
         setEditingId(null);
@@ -255,6 +265,100 @@ const TreatmentsManager = () => {
                                 + إضافة تحذير/احتياط
                             </button>
                         </div>
+
+                        {/* ═══════════════════════════════════════════════════════════════════ */}
+                        {/* موانع الاستخدام - قسم جديد */}
+                        {/* ═══════════════════════════════════════════════════════════════════ */}
+                        <div className="bg-gradient-to-r from-red-50 to-orange-50 p-5 rounded-xl border border-red-100">
+                            <h4 className="font-bold text-red-800 mb-4 flex items-center gap-2">
+                                ⚠️ موانع الاستخدام (Contraindications)
+                            </h4>
+                            <p className="text-xs text-red-600 mb-4">
+                                حدد الحالات التي يُمنع فيها استخدام هذا العلاج - سيتم استبعاده تلقائياً من التوصيات
+                            </p>
+
+                            {/* Pregnancy & Breastfeeding */}
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <label className="flex items-center gap-3 p-3 bg-white rounded-lg border border-red-100 cursor-pointer hover:bg-red-50 transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.contraindicated_pregnancy || false}
+                                        onChange={(e) => setFormData({ ...formData, contraindicated_pregnancy: e.target.checked })}
+                                        className="w-5 h-5 text-red-500 rounded focus:ring-2 focus:ring-red-200"
+                                    />
+                                    <div>
+                                        <span className="font-medium text-slate-700">🤰 ممنوع للحوامل</span>
+                                        <p className="text-xs text-slate-500">يُستبعد تلقائياً إذا كانت المريضة حاملاً</p>
+                                    </div>
+                                </label>
+                                <label className="flex items-center gap-3 p-3 bg-white rounded-lg border border-red-100 cursor-pointer hover:bg-red-50 transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.contraindicated_breastfeeding || false}
+                                        onChange={(e) => setFormData({ ...formData, contraindicated_breastfeeding: e.target.checked })}
+                                        className="w-5 h-5 text-red-500 rounded focus:ring-2 focus:ring-red-200"
+                                    />
+                                    <div>
+                                        <span className="font-medium text-slate-700">🤱 ممنوع للمرضعات</span>
+                                        <p className="text-xs text-slate-500">يُستبعد تلقائياً إذا كانت المريضة مُرضعة</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {/* Age Restrictions */}
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">الحد الأدنى للعمر</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="120"
+                                        value={formData.age_restriction_min || ''}
+                                        onChange={(e) => setFormData({ ...formData, age_restriction_min: e.target.value ? parseInt(e.target.value) : undefined })}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                        placeholder="مثال: 18"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">الحد الأقصى للعمر</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="120"
+                                        value={formData.age_restriction_max || ''}
+                                        onChange={(e) => setFormData({ ...formData, age_restriction_max: e.target.value ? parseInt(e.target.value) : undefined })}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                        placeholder="مثال: 65"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Chronic Diseases */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">ممنوع لمرضى (اختر الأمراض المزمنة)</label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                    {['السكري', 'ارتفاع ضغط الدم', 'أمراض القلب', 'أمراض الكلى', 'أمراض الكبد', 'الربو', 'الصرع', 'الغدة الدرقية'].map((disease) => (
+                                        <label key={disease} className="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-100 cursor-pointer hover:bg-slate-50">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.contraindicated_chronic_diseases?.includes(disease) || false}
+                                                onChange={(e) => {
+                                                    const current = formData.contraindicated_chronic_diseases || [];
+                                                    if (e.target.checked) {
+                                                        setFormData({ ...formData, contraindicated_chronic_diseases: [...current, disease] });
+                                                    } else {
+                                                        setFormData({ ...formData, contraindicated_chronic_diseases: current.filter(d => d !== disease) });
+                                                    }
+                                                }}
+                                                className="w-4 h-4 text-red-500 rounded"
+                                            />
+                                            <span className="text-sm text-slate-700">{disease}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        {/* ═══════════════════════════════════════════════════════════════════ */}
 
                         <div className="flex gap-3 pt-4">
                             <button
