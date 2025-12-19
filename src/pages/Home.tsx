@@ -1,15 +1,16 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
-import { ArrowLeft, Activity, ShieldCheck, HeartPulse } from 'lucide-react'; // Changed ArrowRight to ArrowLeft for RTL
+import { ArrowLeft, Activity, ShieldCheck, HeartPulse, Camera } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import DataManager, { type SiteContent } from '@/services/dataManager';
-import { useState } from 'react';
+import MedicineScannerModal from '@/components/MedicineScannerModal';
 
 const Home = () => {
     const heroRef = useRef<HTMLDivElement>(null);
     const textRef = useRef<HTMLDivElement>(null);
     const [content, setContent] = useState<SiteContent | null>(null);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
 
     useEffect(() => {
         // Initial load
@@ -103,6 +104,22 @@ const Home = () => {
                             <Link to="/about" className="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all duration-300">
                                 {hero.secondaryButton}
                             </Link>
+
+                            {/* ═══════════════════ زر ماسح الأدوية ═══════════════════ */}
+                            <motion.button
+                                onClick={() => setIsScannerOpen(true)}
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="px-6 py-4 bg-gradient-to-r from-accent to-emerald-500 text-white rounded-xl font-semibold 
+                                           shadow-lg shadow-accent/30 hover:shadow-xl hover:shadow-accent/40 
+                                           transition-all duration-300 flex items-center gap-3"
+                            >
+                                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <Camera size={18} />
+                                </div>
+                                ماسح الأدوية
+                            </motion.button>
+                            {/* ═══════════════════════════════════════════════════════ */}
                         </div>
                     </div>
 
@@ -169,6 +186,8 @@ const Home = () => {
                 </div>
             </section>
 
+            {/* Medicine Scanner Modal */}
+            <MedicineScannerModal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
         </div>
     );
 };

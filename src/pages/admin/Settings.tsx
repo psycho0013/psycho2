@@ -21,7 +21,7 @@ const Settings = () => {
     const [settings, setSettings] = useState<SiteSettings>(() => {
         const stored = localStorage.getItem('phy_site_settings');
         return stored ? JSON.parse(stored) : {
-            siteName: 'صيدلية فاي',
+            siteName: 'صيدلية SmartTashkhees',
             siteDescription: 'منصة رعاية صحية ذكية مدعومة بالذكاء الاصطناعي',
             email: 'contact@phy.ai',
             phone: '+964 770 000 0000',

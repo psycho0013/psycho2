@@ -9,6 +9,7 @@ const TreatmentsManager = () => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Partial<Treatment>>({
         name: '',
+        name_en: '',
         description: '',
         type: 'دواء',
         dosage: '',
@@ -69,6 +70,7 @@ const TreatmentsManager = () => {
     const resetForm = () => {
         setFormData({
             name: '',
+            name_en: '',
             description: '',
             type: 'دواء',
             dosage: '',
@@ -134,13 +136,26 @@ const TreatmentsManager = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">اسم العلاج</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">اسم العلاج (بالعربي)</label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
                                 required
+                                placeholder="مثال: باراسيتامول"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">اسم العلاج (بالإنجليزي) - للماسح</label>
+                            <input
+                                type="text"
+                                value={formData.name_en || ''}
+                                onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                placeholder="Example: Paracetamol"
+                                dir="ltr"
                             />
                         </div>
 

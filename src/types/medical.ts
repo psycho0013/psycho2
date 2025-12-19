@@ -13,6 +13,7 @@ export interface Symptom {
 export interface Treatment {
     id: string;
     name: string;
+    name_en?: string; // الاسم بالإنجليزية (للماسح)
     description: string;
     type: 'دواء' | 'نمط حياة' | 'إجراء طبي';
     dosage?: string;

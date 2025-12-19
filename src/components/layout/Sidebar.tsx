@@ -75,7 +75,7 @@ const Sidebar = () => {
                                     exit={{ opacity: 0, width: 0 }}
                                     className="font-bold text-xl text-slate-800 mr-3"
                                 >
-                                    صيدلية <span className="text-primary">فاي</span>
+                                    <span className="text-primary">SmartTashkhees</span>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -209,7 +209,7 @@ const Sidebar = () => {
                         <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
                             <Pill size={24} />
                         </div>
-                        <span className="font-bold text-xl text-slate-800">صيدلية <span className="text-primary">فاي</span></span>
+                        <span className="font-bold text-xl text-slate-800"><span className="text-primary">SmartTashkhees</span></span>
                     </div>
                     <button onClick={toggleSidebar}><X size={24} /></button>
                 </div>
