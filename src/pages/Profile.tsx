@@ -443,8 +443,7 @@ function MedicalHistoryCard({ record, index }: { record: MedicalHistory; index: 
                                 <div className="flex flex-wrap gap-2">
                                     {(record.symptoms || []).map((s: any, i: number) => (
                                         <span key={i} className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 shadow-sm">
-                                            {/* Handle both object and string symptoms if needed */}
-                                            {s.id || 'عرض'}
+                                            {s.name || s.id || 'عرض'}
                                             {s.severity && <span className="mr-1 text-xs opacity-50">({s.severity})</span>}
                                         </span>
                                     ))}

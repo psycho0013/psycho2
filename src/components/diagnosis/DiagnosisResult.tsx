@@ -60,7 +60,7 @@ const DiagnosisResult = ({ state }: Props) => {
         analyze();
     }, []);
 
-    const saveDiagnosisToHistory = async (disease: Disease, confidence: number, isEmergency: boolean) => {
+    const saveDiagnosisToHistory = async (disease: Disease, confidence: number, isEmergency: boolean, allSymptoms: any[]) => {
         if (hasSaved.current) return;
         try {
             const user = await authService.getCurrentUser();
@@ -69,20 +69,35 @@ const DiagnosisResult = ({ state }: Props) => {
             hasSaved.current = true;
             console.log('💾 Saving diagnosis to history...');
 
+            // Map symptoms to Arabic names with severity
+            const symptomsWithArabicNames = state.selectedSymptoms.map(s => {
+                const symptom = allSymptoms.find(sym => sym.id === s.id);
+                const severityArabic = s.severity === 'mild' ? 'خفيف' : s.severity === 'moderate' ? 'متوسط' : 'شديد';
+                return {
+                    name: symptom?.name_ar || symptom?.name || s.id,
+                    severity: severityArabic
+                };
+            });
+
+            // Create Arabic notes
+            const confidenceText = confidence >= 80 ? 'عالية' : confidence >= 60 ? 'متوسطة' : 'منخفضة';
+            const emergencyText = isEmergency ? 'نعم ⚠️' : 'لا';
+            const arabicNotes = `نسبة الدقة: ${confidence}% (${confidenceText}). حالة طوارئ: ${emergencyText}.`;
+
             await profileService.addMedicalHistory(user.id, {
-                symptoms: state.selectedSymptoms,
+                symptoms: symptomsWithArabicNames,
                 diagnosis_result: {
                     diseaseId: disease.id,
                     diseaseName: disease.name,
                     confidence: confidence,
                     isEmergency: isEmergency
                 },
-                notes: `Confidence Score: ${confidence}%. Emergency: ${isEmergency ? 'Yes' : 'No'}.`
+                notes: arabicNotes
             });
             console.log('✅ Diagnosis saved successfully');
         } catch (error) {
             console.error('❌ Failed to save diagnosis:', error);
-            hasSaved.current = false; // Allow retry if failed? Or maybe not to avoid spam
+            hasSaved.current = false;
         }
     };
 
@@ -150,7 +165,7 @@ const DiagnosisResult = ({ state }: Props) => {
                     StatisticsManager.saveDiagnosis(state, matchedDisease, emergencyStatus);
 
                     // SAVE TO HISTORY
-                    saveDiagnosisToHistory(matchedDisease, aiConfidence, emergencyStatus);
+                    saveDiagnosisToHistory(matchedDisease, aiConfidence, emergencyStatus, allSymptoms);
 
                 } else {
                     setResult(null);
