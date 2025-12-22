@@ -263,20 +263,26 @@ const Sidebar = () => {
                 <div className="p-4 border-t border-slate-100 space-y-2">
                     {user ? (
                         <div className={cn("flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100", !isOpen && "justify-center p-2")}>
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
-                                {user.email?.charAt(0).toUpperCase()}
-                            </div>
-                            {isOpen && (
-                                <div className="overflow-hidden flex-1">
-                                    <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.full_name || 'User'}</p>
-                                    <button
-                                        onClick={handleSignOut}
-                                        className="text-xs text-red-500 hover:text-red-700 transition-colors flex items-center gap-1"
-                                    >
-                                        <LogOut size={12} />
-                                        تسجيل الخروج
-                                    </button>
+                            <NavLink to="/profile" className={cn("flex items-center gap-3 flex-1 min-w-0", !isOpen && "justify-center w-full")}>
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                                    {user.email?.charAt(0).toUpperCase()}
                                 </div>
+                                {isOpen && (
+                                    <div className="overflow-hidden flex-1">
+                                        <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.full_name || 'User'}</p>
+                                        <span className="text-xs text-slate-500 hover:text-primary transition-colors">الملف الشخصي</span>
+                                    </div>
+                                )}
+                            </NavLink>
+
+                            {isOpen && (
+                                <button
+                                    onClick={handleSignOut}
+                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors"
+                                    title="تسجيل الخروج"
+                                >
+                                    <LogOut size={16} />
+                                </button>
                             )}
                         </div>
                     ) : (
@@ -408,22 +414,25 @@ const Sidebar = () => {
                 <div className="p-4 border-t border-slate-100 space-y-2">
                     {user ? (
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
-                                {user.email?.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="overflow-hidden flex-1">
-                                <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.full_name || 'User'}</p>
-                                <button
-                                    onClick={() => {
-                                        handleSignOut();
-                                        setIsOpen(false);
-                                    }}
-                                    className="text-xs text-red-500 hover:text-red-700 transition-colors flex items-center gap-1"
-                                >
-                                    <LogOut size={12} />
-                                    تسجيل الخروج
-                                </button>
-                            </div>
+                            <NavLink to="/profile" className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                                    {user.email?.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="overflow-hidden flex-1 text-right">
+                                    <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.full_name || 'User'}</p>
+                                    <span className="text-xs text-slate-500">الملف الشخصي</span>
+                                </div>
+                            </NavLink>
+                            <button
+                                onClick={() => {
+                                    handleSignOut();
+                                    setIsOpen(false);
+                                }}
+                                className="w-8 h-8 flex items-center justify-center rounded-lg text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors"
+                                title="تسجيل الخروج"
+                            >
+                                <LogOut size={16} />
+                            </button>
                         </div>
                     ) : (
                         <NavLink

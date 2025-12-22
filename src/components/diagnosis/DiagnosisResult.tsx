@@ -6,6 +6,8 @@ import type { DiagnosisState } from '../../pages/Diagnosis';
 import type { Disease, Treatment } from '@/types/medical';
 import DbManager from '@/services/dbManager';
 import StatisticsManager from '@/services/statisticsManager';
+import { authService } from '@/services/authService';
+import { profileService } from '@/services/profileService';
 
 interface Props {
     state: DiagnosisState;
@@ -24,6 +26,7 @@ const DiagnosisResult = ({ state }: Props) => {
     const [confidenceScore, setConfidenceScore] = useState<number>(0);
     const [treatmentsList, setTreatmentsList] = useState<Treatment[]>([]);
     const hasAnalyzed = useRef(false);
+    const hasSaved = useRef(false); // Prevent duplicate saves
 
     useEffect(() => {
         const analyze = async () => {
@@ -32,15 +35,19 @@ const DiagnosisResult = ({ state }: Props) => {
 
             const startTime = Date.now();
 
-            // Fetch data
-            const [diseases, treatments] = await Promise.all([
-                DbManager.getDiseases(),
-                DbManager.getTreatments()
-            ]);
-            setTreatmentsList(treatments);
+            try {
+                // Fetch data
+                const [diseases, treatments] = await Promise.all([
+                    DbManager.getDiseases(),
+                    DbManager.getTreatments()
+                ]);
+                setTreatmentsList(treatments);
 
-            // Run diagnosis and wait for it to complete
-            await calculateDiagnosis(diseases);
+                // Run diagnosis and wait for it to complete
+                await calculateDiagnosis(diseases);
+            } catch (error) {
+                console.error("Initialization error:", error);
+            }
 
             // Ensure minimum loading time for UX
             const elapsed = Date.now() - startTime;
@@ -53,45 +60,59 @@ const DiagnosisResult = ({ state }: Props) => {
         analyze();
     }, []);
 
+    const saveDiagnosisToHistory = async (disease: Disease, confidence: number, isEmergency: boolean) => {
+        if (hasSaved.current) return;
+        try {
+            const user = await authService.getCurrentUser();
+            if (!user) return; // User not logged in, can't save
+
+            hasSaved.current = true;
+            console.log('💾 Saving diagnosis to history...');
+
+            await profileService.addMedicalHistory(user.id, {
+                symptoms: state.selectedSymptoms,
+                diagnosis_result: {
+                    diseaseId: disease.id,
+                    diseaseName: disease.name,
+                    confidence: confidence,
+                    isEmergency: isEmergency
+                },
+                notes: `Confidence Score: ${confidence}%. Emergency: ${isEmergency ? 'Yes' : 'No'}.`
+            });
+            console.log('✅ Diagnosis saved successfully');
+        } catch (error) {
+            console.error('❌ Failed to save diagnosis:', error);
+            hasSaved.current = false; // Allow retry if failed? Or maybe not to avoid spam
+        }
+    };
+
     const calculateDiagnosis = async (diseases: Disease[]) => {
         try {
-            // Fetch all symptoms to resolve names
+            // ... (existing symptom mapping code)
             const allSymptoms = await DbManager.getSymptoms();
-
-            // Map selected symptom IDs to names
             const symptomNames = state.selectedSymptoms.map(s => {
                 const symptom = allSymptoms.find(sym => sym.id === s.id);
                 return symptom ? (symptom.name_ar || symptom.name) : s.id;
             });
-
-            // Also include related symptoms (which are just IDs in state.relatedSymptoms)
             const relatedSymptomNames = state.relatedSymptoms.map(id => {
                 const symptom = allSymptoms.find(sym => sym.id === id);
                 return symptom ? (symptom.name_ar || symptom.name) : id;
             });
-
             const allSymptomNames = [...symptomNames, ...relatedSymptomNames];
 
-            console.log('🤖 HYBRID Diagnosis: Sending request...', {
-                symptoms: allSymptomNames,
-                symptomDetails: state.selectedSymptoms,
-                relatedSymptoms: state.relatedSymptoms,
-                age: state.personalInfo.age,
-                gender: state.personalInfo.gender
-            });
+
+            console.log('🤖 HYBRID Diagnosis: Sending request...', { /* ... */ });
 
             const response = await fetch('/api/diagnose', {
+                // ... (existing fetch options)
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     symptoms: allSymptomNames,
-                    symptomDetails: state.selectedSymptoms, // { id, severity }[]
-                    relatedSymptoms: state.relatedSymptoms, // string[] of IDs
+                    symptomDetails: state.selectedSymptoms,
+                    relatedSymptoms: state.relatedSymptoms,
                     age: state.personalInfo.age,
                     gender: state.personalInfo.gender === 'male' ? 'Male' : 'Female',
-                    // إرسال البيانات المنظمة بدلاً من notes string
                     weight: state.personalInfo.weight,
                     height: state.personalInfo.height,
                     chronicDiseases: state.vitals.chronicDiseases,
@@ -101,41 +122,23 @@ const DiagnosisResult = ({ state }: Props) => {
                 }),
             });
 
-            if (!response.ok) {
-                throw new Error(`Diagnosis failed with status: ${response.status}`);
-            }
-
+            if (!response.ok) throw new Error(`Diagnosis failed with status: ${response.status}`);
             const data = await response.json();
-            console.log('✅ AI Connection: Received response!', data);
-
-            // The API returns { diagnosis: [...], disclaimer: ... }
-            // We need to map the first diagnosis to our result format
-            // Ideally, we should match the disease name back to our database ID if we want to link treatments correctly.
-            // For now, let's try to find the disease in our local list by name.
 
             if (data.diagnosis && data.diagnosis.length > 0) {
                 const topDiagnosis = data.diagnosis[0];
-                console.log('🔍 AI Top Diagnosis:', topDiagnosis.disease_name);
-
-                // Normalizing names for better matching (trim and lowercase)
                 const matchedDisease = diseases.find(d =>
                     d.name.toLowerCase().trim() === topDiagnosis.disease_name.toLowerCase().trim()
                 );
 
                 if (matchedDisease) {
-                    console.log('🎯 Database Match Found:', matchedDisease.name);
                     setResult(matchedDisease);
-
-                    // حفظ نسبة الثقة من الذكاء الاصطناعي
                     const aiConfidence = topDiagnosis.confidence || 0;
                     setConfidenceScore(aiConfidence);
 
-                    // Emergency detection: استخدام نتيجة الذكاء الاصطناعي المحسّن
-                    // الـ API الجديد يُرجع emergency_alert بناءً على تحليل شامل
                     let emergencyStatus = data.emergency_alert || false;
-
-                    // إضافة فحص محلي كـ fallback
                     if (!emergencyStatus) {
+                        // Fallback emergency check
                         const hasCriticalSymptom = state.selectedSymptoms.some(s => {
                             const symptom = allSymptoms.find(sym => sym.id === s.id);
                             return symptom?.is_critical === true;
@@ -143,29 +146,17 @@ const DiagnosisResult = ({ state }: Props) => {
                         const hasSevereSeverity = state.selectedSymptoms.some(s => s.severity === 'severe');
                         emergencyStatus = hasCriticalSymptom && hasSevereSeverity;
                     }
-
-                    console.log('🚨 Emergency Check:', {
-                        aiEmergencyAlert: data.emergency_alert,
-                        aiEmergencyReason: data.emergency_reason,
-                        finalStatus: emergencyStatus,
-                        topDiagnosisSeverity: topDiagnosis.severity_assessment
-                    });
-
                     setIsEmergency(emergencyStatus);
                     StatisticsManager.saveDiagnosis(state, matchedDisease, emergencyStatus);
+
+                    // SAVE TO HISTORY
+                    saveDiagnosisToHistory(matchedDisease, aiConfidence, emergencyStatus);
+
                 } else {
-                    console.warn('⚠️ AI found a disease but it is NOT in the local database:', topDiagnosis.disease_name);
-                    console.log('Available Diseases in DB:', diseases.map(d => d.name));
-                    // AI found a disease but we don't have it in our DB exactly? 
-                    // Or maybe the name is slightly different.
-                    // For this MVP, let's fallback to "No match" if we can't link it to our DB, 
-                    // OR we could display the AI result directly even if not in DB (but then no treatments links).
-                    // Let's stick to DB matching for safety as requested "based ONLY on provided database".
                     setResult(null);
                     StatisticsManager.saveDiagnosis(state, null, false);
                 }
             } else {
-                console.log('ℹ️ AI returned no diagnosis.');
                 setResult(null);
                 StatisticsManager.saveDiagnosis(state, null, false);
             }
@@ -336,8 +327,8 @@ const DiagnosisResult = ({ state }: Props) => {
                                             <li
                                                 key={tId}
                                                 className={`flex items-start gap-3 p-3 rounded-lg ${isContraindicated
-                                                        ? 'bg-red-50 border border-red-200'
-                                                        : 'text-slate-700'
+                                                    ? 'bg-red-50 border border-red-200'
+                                                    : 'text-slate-700'
                                                     }`}
                                             >
                                                 <span className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${isContraindicated ? 'bg-red-500' : 'bg-primary'

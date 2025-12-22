@@ -25,6 +25,7 @@ import Settings from './pages/admin/Settings';
 import MessagesManager from './pages/admin/MessagesManager';
 import DiagnosisSettings from './pages/admin/DiagnosisSettings';
 import Auth from './pages/Auth';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
             <Route path="directory/:id" element={<DirectoryItemDetails />} />
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
 
           {/* Admin Routes - Protected by EncryptionPrompt */}

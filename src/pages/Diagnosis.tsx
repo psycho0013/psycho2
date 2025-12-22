@@ -7,6 +7,8 @@ import StepRelatedSymptoms from '@/components/diagnosis/StepRelatedSymptoms';
 import StepVitals from '@/components/diagnosis/StepVitals';
 import StepReview from '@/components/diagnosis/StepReview';
 import DiagnosisResult from '@/components/diagnosis/DiagnosisResult';
+import { authService } from '@/services/authService';
+import { profileService } from '@/services/profileService';
 
 export type Gender = 'male' | 'female';
 
@@ -61,6 +63,47 @@ const Diagnosis = () => {
                 { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }
             );
         }
+    }, []);
+
+    // Load User Profile Data
+    useEffect(() => {
+        const loadProfileData = async () => {
+            try {
+                const user = await authService.getCurrentUser();
+                if (!user) return;
+
+                const { data: profile } = await profileService.getProfile(user.id);
+                if (profile) {
+                    let age = '';
+                    if (profile.date_of_birth) {
+                        const birthYear = new Date(profile.date_of_birth).getFullYear();
+                        const currentYear = new Date().getFullYear();
+                        age = (currentYear - birthYear).toString();
+                    }
+
+                    setState(prev => ({
+                        ...prev,
+                        personalInfo: {
+                            ...prev.personalInfo,
+                            name: profile.full_name || prev.personalInfo.name,
+                            age: age || prev.personalInfo.age,
+                            gender: profile.gender === 'Male' ? 'male' : profile.gender === 'Female' ? 'female' : prev.personalInfo.gender,
+                            height: profile.height?.toString() || prev.personalInfo.height,
+                            weight: profile.weight?.toString() || prev.personalInfo.weight,
+                        },
+                        vitals: {
+                            ...prev.vitals,
+                            chronicDiseases: profile.chronic_conditions && profile.chronic_conditions.length > 0
+                                ? [...new Set([...prev.vitals.chronicDiseases, ...profile.chronic_conditions])]
+                                : prev.vitals.chronicDiseases
+                        }
+                    }));
+                }
+            } catch (error) {
+                console.error("Error loading profile:", error);
+            }
+        };
+        loadProfileData();
     }, []);
 
     // Scroll to top when step changes
