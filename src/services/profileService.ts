@@ -29,16 +29,19 @@ export const profileService = {
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .single();
+            .maybeSingle(); // Use maybeSingle to handle no rows gracefully
         return { data, error };
     },
 
-    // Update User Profile
+    // Update User Profile (upsert to create if not exists)
     updateProfile: async (userId: string, updates: Partial<Profile>) => {
         const { data, error } = await supabase
             .from('profiles')
-            .update({ ...updates, updated_at: new Date().toISOString() })
-            .eq('id', userId)
+            .upsert({
+                id: userId,
+                ...updates,
+                updated_at: new Date().toISOString()
+            })
             .select()
             .single();
         return { data, error };
