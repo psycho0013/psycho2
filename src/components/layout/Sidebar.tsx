@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -13,16 +13,46 @@ import {
     Pill,
     Building2,
     LogIn,
-    FlaskConical
+    FlaskConical,
+    LogOut,
+    Settings as SettingsIcon,
+    ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminLoginModal from '../auth/AdminLoginModal';
+import { authService } from '@/services/authService';
+import { supabase } from '@/lib/supabase';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+    const [user, setUser] = useState<any>(null);
+
+    useEffect(() => {
+        authService.getCurrentUser().then(setUser);
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const handleSignOut = async () => {
+        await authService.signOut();
+        // wrapper will update via onAuthStateChange
+    };
 
     const toggleSidebar = () => setIsOpen(!isOpen);
+
+    const toggleSubMenu = (label: string) => {
+        if (expandedMenu === label) {
+            setExpandedMenu(null);
+        } else {
+            setExpandedMenu(label);
+        }
+    };
 
     const navItems = [
         { path: '/', label: 'الرئيسية', icon: Home },
@@ -30,8 +60,16 @@ const Sidebar = () => {
         { path: '/lab-diagnosis', label: 'المختبر الذكي', icon: FlaskConical },
         { path: '/awareness', label: 'توعية طبية', icon: BookOpen },
         { path: '/directory', label: 'دليل طبي', icon: Building2 },
-        { path: '/about', label: 'عن المنصة', icon: Info },
         { path: '/contact', label: 'اتصل بنا', icon: Phone },
+        {
+            label: 'الإعدادات',
+            icon: SettingsIcon, // Renamed to avoid conflict if any, or just Settings
+            isSubMenu: true,
+            children: [
+                { path: '/about', label: 'عن المنصة', icon: Info },
+                { isAction: true, action: () => setIsLoginModalOpen(true), label: 'دخول المشرفين', icon: LogIn }
+            ]
+        },
     ];
 
     return (
@@ -96,90 +134,168 @@ const Sidebar = () => {
 
                 {/* Navigation Links */}
                 <nav className="flex-1 py-8 px-4 space-y-3 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                    {navItems.map((item) => (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            className={({ isActive }) => cn(
-                                "flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden",
-                                isActive
-                                    ? "text-primary font-bold shadow-lg shadow-primary/10"
-                                    : "text-slate-500 hover:text-slate-900 font-medium",
-                                !isOpen && "justify-center px-2"
-                            )}
-                        >
-                            {({ isActive }) => (
-                                <>
-                                    {/* Glass Active Background */}
-                                    {isActive && (
-                                        <motion.div
-                                            layoutId="activeNavBackground"
-                                            className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-100 rounded-2xl border border-primary/20 backdrop-blur-sm"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                        />
-                                    )}
+                    {navItems.map((item, index) => {
+                        if (item.isSubMenu && item.children) {
+                            const isExpanded = expandedMenu === item.label;
+                            return (
+                                <div key={index} className="space-y-1">
+                                    <button
+                                        onClick={() => {
+                                            if (!isOpen) setIsOpen(true);
+                                            toggleSubMenu(item.label);
+                                        }}
+                                        className={cn(
+                                            "w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden text-slate-500 hover:text-slate-900 font-medium",
+                                            !isOpen && "justify-center px-2"
+                                        )}
+                                    >
+                                        <div className="absolute inset-0 bg-slate-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl -z-10" />
+                                        <item.icon size={24} className={cn("shrink-0 relative z-10 transition-transform duration-300 group-hover:scale-110", isExpanded && "text-primary")} />
 
-                                    {/* Hover Background - Subtle */}
-                                    <div className="absolute inset-0 bg-slate-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl -z-10" />
+                                        <AnimatePresence mode="wait">
+                                            {isOpen && (
+                                                <>
+                                                    <motion.span
+                                                        initial={{ opacity: 0, x: -10 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        exit={{ opacity: 0, x: -10 }}
+                                                        className="whitespace-nowrap relative z-10 flex-1 text-right"
+                                                    >
+                                                        {item.label}
+                                                    </motion.span>
+                                                    <ChevronDown size={16} className={cn("transition-transform duration-300", isExpanded && "rotate-180")} />
+                                                </>
+                                            )}
+                                        </AnimatePresence>
+                                    </button>
 
-                                    <item.icon size={24} className={cn("shrink-0 relative z-10 transition-transform duration-300 group-hover:scale-110", isActive && "text-primary")} />
-
-                                    <AnimatePresence mode="wait">
-                                        {isOpen && (
-                                            <motion.span
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                exit={{ opacity: 0, x: -10 }}
-                                                className="whitespace-nowrap relative z-10"
+                                    <AnimatePresence>
+                                        {isOpen && isExpanded && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="overflow-hidden pr-8" // indented for hierarchy
                                             >
-                                                {item.label}
-                                            </motion.span>
+                                                {item.children.map((subItem, subIndex) => (
+                                                    subItem.isAction ? (
+                                                        <button
+                                                            key={subIndex}
+                                                            onClick={subItem.action}
+                                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:text-primary hover:bg-slate-50 transition-all text-sm font-medium"
+                                                        >
+                                                            <subItem.icon size={20} />
+                                                            <span>{subItem.label}</span>
+                                                        </button>
+                                                    ) : (
+                                                        <NavLink
+                                                            key={subIndex}
+                                                            to={subItem.path || '#'}
+                                                            className={({ isActive }) => cn(
+                                                                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium",
+                                                                isActive ? "text-primary bg-primary/5 font-bold" : "text-slate-500 hover:text-primary hover:bg-slate-50"
+                                                            )}
+                                                        >
+                                                            <subItem.icon size={20} />
+                                                            <span>{subItem.label}</span>
+                                                        </NavLink>
+                                                    )
+                                                ))}
+                                            </motion.div>
                                         )}
                                     </AnimatePresence>
+                                </div>
+                            );
+                        }
 
-                                    {/* Active Indicator Bar */}
-                                    {isOpen && isActive && (
-                                        <motion.div
-                                            layoutId="activeNavBar"
-                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-primary rounded-r-full shadow-sm shadow-primary/50"
-                                        />
-                                    )}
-                                </>
-                            )}
-                        </NavLink>
-                    ))}
+                        return (
+                            <NavLink
+                                key={item.path}
+                                to={item.path || '#'}
+                                className={({ isActive }) => cn(
+                                    "flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden",
+                                    isActive
+                                        ? "text-primary font-bold shadow-lg shadow-primary/10"
+                                        : "text-slate-500 hover:text-slate-900 font-medium",
+                                    !isOpen && "justify-center px-2"
+                                )}
+                            >
+                                {({ isActive }) => (
+                                    <>
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="activeNavBackground"
+                                                className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-100 rounded-2xl border border-primary/20 backdrop-blur-sm"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                            />
+                                        )}
+                                        <div className="absolute inset-0 bg-slate-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl -z-10" />
+                                        <item.icon size={24} className={cn("shrink-0 relative z-10 transition-transform duration-300 group-hover:scale-110", isActive && "text-primary")} />
+                                        <AnimatePresence mode="wait">
+                                            {isOpen && (
+                                                <motion.span
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: -10 }}
+                                                    className="whitespace-nowrap relative z-10"
+                                                >
+                                                    {item.label}
+                                                </motion.span>
+                                            )}
+                                        </AnimatePresence>
+                                        {isOpen && isActive && (
+                                            <motion.div
+                                                layoutId="activeNavBar"
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-primary rounded-r-full shadow-sm shadow-primary/50"
+                                            />
+                                        )}
+                                    </>
+                                )}
+                            </NavLink>
+                        );
+                    })}
                 </nav>
 
                 {/* User Profile / Footer */}
                 <div className="p-4 border-t border-slate-100 space-y-2">
-                    <button
-                        onClick={() => setIsLoginModalOpen(true)}
-                        className={cn(
-                            "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 text-slate-500 hover:text-primary transition-all duration-200 group",
-                            !isOpen && "justify-center p-2"
-                        )}
-                    >
-                        <div className={cn("w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all", !isOpen && "w-10 h-10")}>
-                            <LogIn size={20} />
-                        </div>
-                        {isOpen && (
-                            <span className="font-medium whitespace-nowrap">دخول المشرفين</span>
-                        )}
-                    </button>
-
-                    <div className={cn("flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100", !isOpen && "justify-center p-2")}>
-                        <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
-                        </div>
-                        {isOpen && (
-                            <div className="overflow-hidden">
-                                <p className="text-sm font-bold text-slate-900 truncate">ضيف زائر</p>
-                                <p className="text-xs text-slate-500 truncate">مرحباً بك</p>
+                    {user ? (
+                        <div className={cn("flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100", !isOpen && "justify-center p-2")}>
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                                {user.email?.charAt(0).toUpperCase()}
                             </div>
-                        )}
-                    </div>
+                            {isOpen && (
+                                <div className="overflow-hidden flex-1">
+                                    <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.full_name || 'User'}</p>
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="text-xs text-red-500 hover:text-red-700 transition-colors flex items-center gap-1"
+                                    >
+                                        <LogOut size={12} />
+                                        تسجيل الخروج
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <NavLink
+                            to="/auth"
+                            className={({ isActive }) => cn(
+                                "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 text-slate-500 hover:text-primary transition-all duration-200 group",
+                                !isOpen && "justify-center p-2",
+                                isActive && "bg-slate-50 text-primary"
+                            )}
+                        >
+                            <div className={cn("w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all", !isOpen && "w-10 h-10")}>
+                                <LogIn size={20} />
+                            </div>
+                            {isOpen && (
+                                <span className="font-medium whitespace-nowrap">تسجيل الدخول</span>
+                            )}
+                        </NavLink>
+                    )}
                 </div>
             </motion.aside>
 
@@ -215,20 +331,77 @@ const Sidebar = () => {
                 </div>
 
                 <nav className="flex-1 py-8 px-6 space-y-2">
-                    {navItems.map((item) => (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            onClick={() => setIsOpen(false)}
-                            className={({ isActive }) => cn(
-                                "flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all",
-                                isActive ? "bg-primary/10 text-primary font-bold" : "text-slate-500 hover:bg-slate-50"
-                            )}
-                        >
-                            <item.icon size={24} />
-                            <span>{item.label}</span>
-                        </NavLink>
-                    ))}
+                    {navItems.map((item, index) => {
+                        if (item.isSubMenu && item.children) {
+                            const isExpanded = expandedMenu === item.label;
+                            return (
+                                <div key={index} className="space-y-1">
+                                    <button
+                                        onClick={() => toggleSubMenu(item.label)}
+                                        className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-50 transition-all font-medium"
+                                    >
+                                        <item.icon size={24} />
+                                        <span className="flex-1 text-right">{item.label}</span>
+                                        <ChevronDown size={16} className={cn("transition-transform", isExpanded && "rotate-180")} />
+                                    </button>
+                                    <AnimatePresence>
+                                        {isExpanded && (
+                                            <motion.div
+                                                initial={{ height: 0 }}
+                                                animate={{ height: 'auto' }}
+                                                exit={{ height: 0 }}
+                                                className="overflow-hidden pr-8"
+                                            >
+                                                {item.children.map((subItem, subIndex) => (
+                                                    subItem.isAction ? (
+                                                        <button
+                                                            key={subIndex}
+                                                            onClick={() => {
+                                                                subItem.action();
+                                                                setIsOpen(false);
+                                                            }}
+                                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:text-primary transition-all text-sm"
+                                                        >
+                                                            <subItem.icon size={20} />
+                                                            <span>{subItem.label}</span>
+                                                        </button>
+                                                    ) : (
+                                                        <NavLink
+                                                            key={subIndex}
+                                                            to={subItem.path || '#'}
+                                                            onClick={() => setIsOpen(false)}
+                                                            className={({ isActive }) => cn(
+                                                                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm",
+                                                                isActive ? "text-primary font-bold bg-primary/5" : "text-slate-500 hover:text-primary"
+                                                            )}
+                                                        >
+                                                            <subItem.icon size={20} />
+                                                            <span>{subItem.label}</span>
+                                                        </NavLink>
+                                                    )
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <NavLink
+                                key={item.path || index}
+                                to={item.path || '#'}
+                                onClick={() => setIsOpen(false)}
+                                className={({ isActive }) => cn(
+                                    "flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all",
+                                    isActive ? "bg-primary/10 text-primary font-bold" : "text-slate-500 hover:bg-slate-50"
+                                )}
+                            >
+                                <item.icon size={24} />
+                                <span>{item.label}</span>
+                            </NavLink>
+                        );
+                    })}
                 </nav>
             </motion.div>
             {/* Desktop Spacer */}

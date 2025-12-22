@@ -24,6 +24,7 @@ import DataManager from './pages/admin/DataManager';
 import Settings from './pages/admin/Settings';
 import MessagesManager from './pages/admin/MessagesManager';
 import DiagnosisSettings from './pages/admin/DiagnosisSettings';
+import Auth from './pages/Auth';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
       <SecurityProvider>
         <ScrollToTop />
         <Routes>
+          <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Home />} />
             <Route path="diagnosis" element={<Diagnosis />} />

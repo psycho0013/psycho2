@@ -3,7 +3,7 @@
   <!-- الصفحة الرئيسية -->
   <url>
     <loc>https://smarttashkhees-rust.vercel.app/</loc>
-    <lastmod>2024-12-11</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -11,7 +11,7 @@
   <!-- التشخيص الذكي -->
   <url>
     <loc>https://smarttashkhees-rust.vercel.app/diagnosis</loc>
-    <lastmod>2024-12-11</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -19,7 +19,7 @@
   <!-- تشخيص المختبر -->
   <url>
     <loc>https://smarttashkhees-rust.vercel.app/lab-diagnosis</loc>
-    <lastmod>2024-12-11</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -27,7 +27,7 @@
   <!-- التوعية الصحية -->
   <url>
     <loc>https://smarttashkhees-rust.vercel.app/awareness</loc>
-    <lastmod>2024-12-11</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -35,7 +35,7 @@
   <!-- الدليل الطبي -->
   <url>
     <loc>https://smarttashkhees-rust.vercel.app/directory</loc>
-    <lastmod>2024-12-11</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -43,7 +43,7 @@
   <!-- من نحن -->
   <url>
     <loc>https://smarttashkhees-rust.vercel.app/about</loc>
-    <lastmod>2024-12-11</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -51,7 +51,7 @@
   <!-- اتصل بنا -->
   <url>
     <loc>https://smarttashkhees-rust.vercel.app/contact</loc>
-    <lastmod>2024-12-11</lastmod>
+    <lastmod>2025-12-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
