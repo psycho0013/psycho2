@@ -403,6 +403,44 @@ const Sidebar = () => {
                         );
                     })}
                 </nav>
+
+                {/* Mobile User Profile / Footer */}
+                <div className="p-4 border-t border-slate-100 space-y-2">
+                    {user ? (
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                                {user.email?.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="overflow-hidden flex-1">
+                                <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.full_name || 'User'}</p>
+                                <button
+                                    onClick={() => {
+                                        handleSignOut();
+                                        setIsOpen(false);
+                                    }}
+                                    className="text-xs text-red-500 hover:text-red-700 transition-colors flex items-center gap-1"
+                                >
+                                    <LogOut size={12} />
+                                    تسجيل الخروج
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <NavLink
+                            to="/auth"
+                            onClick={() => setIsOpen(false)}
+                            className={({ isActive }) => cn(
+                                "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 text-slate-500 hover:text-primary transition-all duration-200 group",
+                                isActive && "bg-slate-50 text-primary"
+                            )}
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all">
+                                <LogIn size={20} />
+                            </div>
+                            <span className="font-medium whitespace-nowrap">تسجيل الدخول</span>
+                        </NavLink>
+                    )}
+                </div>
             </motion.div>
             {/* Desktop Spacer */}
             <motion.div
