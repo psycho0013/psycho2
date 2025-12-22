@@ -63,25 +63,40 @@ const Profile = () => {
         setSaving(true);
         setMessage(null);
         try {
-            if (!profile?.id) return;
+            // Get user ID from auth service directly
+            const user = await authService.getCurrentUser();
+            if (!user) {
+                console.error('❌ No user logged in!');
+                setMessage({ type: 'error', text: 'يجب تسجيل الدخول أولاً' });
+                return;
+            }
+
+            console.log('💾 Saving profile for user:', user.id);
 
             const updates: Partial<UserProfile> = {
                 full_name: formData.full_name,
                 gender: formData.gender as any,
-                date_of_birth: formData.date_of_birth,
-                blood_type: formData.blood_type as any,
+                date_of_birth: formData.date_of_birth || null,
+                blood_type: formData.blood_type as any || null,
                 height: parseFloat(formData.height) || null,
                 weight: parseFloat(formData.weight) || null,
-                // chronic_conditions: formData.chronic_conditions 
             };
 
-            const { error } = await profileService.updateProfile(profile.id, updates);
-            if (error) throw error;
+            console.log('📝 Updates:', updates);
 
+            const { data, error } = await profileService.updateProfile(user.id, updates);
+
+            if (error) {
+                console.error('❌ Supabase error:', error);
+                throw error;
+            }
+
+            console.log('✅ Profile saved successfully:', data);
             setMessage({ type: 'success', text: 'تم حفظ التغييرات بنجاح' });
             setTimeout(() => setMessage(null), 3000);
-        } catch (err) {
-            setMessage({ type: 'error', text: 'حدث خطأ أثناء الحفظ' });
+        } catch (err: any) {
+            console.error('❌ Save failed:', err);
+            setMessage({ type: 'error', text: `حدث خطأ: ${err?.message || 'غير معروف'}` });
         } finally {
             setSaving(false);
         }
