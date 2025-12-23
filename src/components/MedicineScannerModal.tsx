@@ -180,6 +180,10 @@ const MedicineScannerModal = ({ isOpen, onClose }: MedicineScannerModalProps) =>
                                                 <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-xs font-bold text-primary shrink-0 mt-0.5">3</span>
                                                 نعرض لك معلومات الدواء الكاملة
                                             </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-xs font-bold text-primary shrink-0 mt-0.5">4</span>
+                                                يرجى تصوير علبة الدواء بشكل واضح بحيث الاسم يكون ظاهر كليا    
+                                            </li>   
                                         </ul>
                                     </div>
 
