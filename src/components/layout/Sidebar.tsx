@@ -213,14 +213,26 @@ const Sidebar = () => {
                     </button>
 
                     {user && (
-                        <div className={cn("mt-auto flex items-center gap-3", isOpen && "w-full p-3 bg-slate-50 rounded-2xl")}>
-                            <div className="w-10 h-10 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center font-bold shrink-0 border-2 border-white shadow-sm">
-                                {user.email?.charAt(0).toUpperCase()}
-                            </div>
-                            {isOpen && (
-                                <div className="overflow-hidden">
-                                    <p className="text-sm font-bold text-slate-700 truncate">{user.user_metadata?.full_name || 'User'}</p>
+                        <div className={cn("mt-auto flex items-center gap-3", isOpen && "w-full p-3 bg-slate-50 rounded-2xl group cursor-pointer hover:bg-slate-100 transition-colors duration-300")}>
+                            <NavLink to="/profile" className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className="w-10 h-10 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center font-bold shrink-0 border-2 border-white shadow-sm">
+                                    {user.email?.charAt(0).toUpperCase()}
                                 </div>
+                                {isOpen && (
+                                    <div className="overflow-hidden">
+                                        <p className="text-sm font-bold text-slate-700 truncate">{user.user_metadata?.full_name || 'User'}</p>
+                                        <span className="text-xs text-slate-400 group-hover:text-cyan-600 transition-colors">الملف الشخصي</span>
+                                    </div>
+                                )}
+                            </NavLink>
+                            {isOpen && (
+                                <button
+                                    onClick={handleSignOut}
+                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                    title="تسجيل الخروج"
+                                >
+                                    <LogOut size={18} />
+                                </button>
                             )}
                         </div>
                     )}
