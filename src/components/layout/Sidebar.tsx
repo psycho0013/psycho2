@@ -9,7 +9,7 @@ import {
     Phone,
     Menu,
     X,
-    ChevronRight, // In RTL, this might need to be ChevronLeft if used for pointing, but for "expand" icon usually it's fine or flipped via CSS
+    ChevronRight,
     Pill,
     Building2,
     LogIn,
@@ -63,7 +63,7 @@ const Sidebar = () => {
         { path: '/contact', label: 'اتصل بنا', icon: Phone },
         {
             label: 'الإعدادات',
-            icon: SettingsIcon, // Renamed to avoid conflict if any, or just Settings
+            icon: SettingsIcon,
             isSubMenu: true,
             children: [
                 { path: '/about', label: 'عن المنصة', icon: Info },
@@ -128,9 +128,8 @@ const Sidebar = () => {
                 {/* Navigation Links */}
                 <nav className="flex-1 py-4 px-3 space-y-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] w-full flex flex-col items-center">
                     {navItems.map((item, index) => {
-                        // Handle Submenus (Keeping simple for now, focusing on the main look)
+                        // Handle Submenus
                         if (item.isSubMenu && item.children) {
-                            // Simplified sub-menu trigger for this specific "bubble" style
                             return (
                                 <div key={index} className="flex flex-col items-center w-full">
                                     <button
@@ -154,13 +153,34 @@ const Sidebar = () => {
                                                 initial={{ height: 0, opacity: 0 }}
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
-                                                className="w-full pl-8 mt-1 space-y-1"
+                                                className="w-full pl-8 mt-1 space-y-1 flex flex-col pr-2"
                                             >
                                                 {item.children.map((subItem, idx) => (
-                                                    <div key={idx} className="py-1">
-                                                        {/* Sub-item rendering logic needs to be simpler for this style */}
-                                                        <span className="text-sm text-slate-500">{subItem.label}</span>
-                                                    </div>
+                                                    subItem.isAction ? (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (subItem.action) subItem.action();
+                                                            }}
+                                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-cyan-600 hover:bg-slate-50 transition-all text-sm font-medium"
+                                                        >
+                                                            <subItem.icon size={18} />
+                                                            <span>{subItem.label}</span>
+                                                        </button>
+                                                    ) : (
+                                                        <NavLink
+                                                            key={idx}
+                                                            to={subItem.path || '#'}
+                                                            className={({ isActive }) => cn(
+                                                                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-medium",
+                                                                isActive ? "text-cyan-600 bg-cyan-50 font-bold" : "text-slate-500 hover:text-cyan-600 hover:bg-slate-50"
+                                                            )}
+                                                        >
+                                                            <subItem.icon size={18} />
+                                                            <span>{subItem.label}</span>
+                                                        </NavLink>
+                                                    )
                                                 ))}
                                             </motion.div>
                                         )}
@@ -239,6 +259,16 @@ const Sidebar = () => {
                 </div>
 
             </motion.aside>
+
+            {/* Desktop Spacer - Adjusted width */}
+            <motion.div
+                initial={false}
+                animate={{
+                    width: isOpen ? 280 : 90,
+                    transition: { duration: 0.3 }
+                }}
+                className="hidden lg:block shrink-0 mr-4"
+            />
 
             {/* Mobile Overlay */}
             <AnimatePresence>
@@ -386,15 +416,6 @@ const Sidebar = () => {
                     )}
                 </div>
             </motion.div>
-            {/* Desktop Spacer */}
-            <motion.div
-                initial={false}
-                animate={{
-                    width: isOpen ? 280 : 80,
-                    transition: { duration: 0.3, type: "spring", stiffness: 100, damping: 20 }
-                }}
-                className="hidden lg:block shrink-0"
-            />
 
             <AdminLoginModal
                 isOpen={isLoginModalOpen}
