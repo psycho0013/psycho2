@@ -151,8 +151,8 @@ export default function DentalMap({
                 <div className={`
                     relative transition-all duration-300
                     ${isMolar
-                        ? 'w-8 h-10 sm:w-10 sm:h-12'
-                        : 'w-6 h-9 sm:w-8 sm:h-11'
+                        ? 'w-7 h-8 sm:w-10 sm:h-12'
+                        : 'w-5 h-7 sm:w-8 sm:h-11'
                     }
                     ${isUpper ? 'rotate-180' : ''}
                 `}>
@@ -203,7 +203,7 @@ export default function DentalMap({
         teeth: number[];
         quadrant: ToothLocation['quadrant'];
     }) => (
-        <div className={`flex items-end justify-center px-1`}>
+        <div className={`flex items-end justify-start gap-0.5 sm:gap-0`}>
             {teeth.map(num => (
                 <ToothButton
                     key={`${quadrant}-${num}`}
@@ -280,42 +280,44 @@ export default function DentalMap({
                                 <h3 className="font-bold text-slate-800 text-xl">مخطط الأسنان</h3>
                             </div>
 
-                            {/* الحاوية الرئيسية للفكين */}
-                            <div className="max-w-3xl mx-auto">
-                                {/* الفك العلوي */}
-                                <div className="relative mb-8 pb-8 border-b-2 border-dashed border-slate-200">
-                                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-white text-slate-400 text-xs font-bold tracking-wider border border-slate-100 rounded-full">
-                                        UPPER JAW
-                                    </span>
+                            {/* الحاوية الرئيسية للفكين - Scrollable on mobile */}
+                            <div className="max-w-3xl mx-auto overflow-x-auto pb-4">
+                                <div className="min-w-[320px]">
+                                    {/* الفك العلوي */}
+                                    <div className="relative mb-8 pb-8 border-b-2 border-dashed border-slate-200">
+                                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-white text-slate-400 text-xs font-bold tracking-wider border border-slate-100 rounded-full">
+                                            UPPER JAW
+                                        </span>
 
-                                    <div className="flex justify-center items-end gap-4 sm:gap-8 pt-6">
-                                        <div className="text-center">
-                                            <ToothRow teeth={UPPER_RIGHT} quadrant="upper-right" />
-                                            <span className="text-[10px] font-bold text-slate-300 mt-2 block tracking-widest">RIGHT</span>
-                                        </div>
-                                        <div className="h-24 w-px bg-gradient-to-b from-slate-200 to-transparent" />
-                                        <div className="text-center">
-                                            <ToothRow teeth={UPPER_LEFT} quadrant="upper-left" />
-                                            <span className="text-[10px] font-bold text-slate-300 mt-2 block tracking-widest">LEFT</span>
+                                        <div className="flex justify-center items-end gap-4 sm:gap-8 pt-6">
+                                            <div className="text-center">
+                                                <ToothRow teeth={UPPER_RIGHT} quadrant="upper-right" />
+                                                <span className="text-[10px] font-bold text-slate-300 mt-2 block tracking-widest">RIGHT</span>
+                                            </div>
+                                            <div className="h-24 w-px bg-gradient-to-b from-slate-200 to-transparent" />
+                                            <div className="text-center">
+                                                <ToothRow teeth={UPPER_LEFT} quadrant="upper-left" />
+                                                <span className="text-[10px] font-bold text-slate-300 mt-2 block tracking-widest">LEFT</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* الفك السفلي */}
-                                <div className="relative pt-4">
-                                    <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-3 py-1 bg-white text-slate-400 text-xs font-bold tracking-wider border border-slate-100 rounded-full z-10">
-                                        LOWER JAW
-                                    </span>
+                                    {/* الفك السفلي */}
+                                    <div className="relative pt-4">
+                                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-3 py-1 bg-white text-slate-400 text-xs font-bold tracking-wider border border-slate-100 rounded-full z-10">
+                                            LOWER JAW
+                                        </span>
 
-                                    <div className="flex justify-center items-start gap-4 sm:gap-8">
-                                        <div className="text-center">
-                                            <span className="text-[10px] font-bold text-slate-300 mb-2 block tracking-widest">RIGHT</span>
-                                            <ToothRow teeth={LOWER_RIGHT} quadrant="lower-right" />
-                                        </div>
-                                        <div className="h-24 w-px bg-gradient-to-t from-slate-200 to-transparent" />
-                                        <div className="text-center">
-                                            <span className="text-[10px] font-bold text-slate-300 mb-2 block tracking-widest">LEFT</span>
-                                            <ToothRow teeth={LOWER_LEFT} quadrant="lower-left" />
+                                        <div className="flex justify-center items-start gap-4 sm:gap-8">
+                                            <div className="text-center">
+                                                <span className="text-[10px] font-bold text-slate-300 mb-2 block tracking-widest">RIGHT</span>
+                                                <ToothRow teeth={LOWER_RIGHT} quadrant="lower-right" />
+                                            </div>
+                                            <div className="h-24 w-px bg-gradient-to-t from-slate-200 to-transparent" />
+                                            <div className="text-center">
+                                                <span className="text-[10px] font-bold text-slate-300 mb-2 block tracking-widest">LEFT</span>
+                                                <ToothRow teeth={LOWER_LEFT} quadrant="lower-left" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
