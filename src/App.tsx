@@ -26,6 +26,7 @@ import MessagesManager from './pages/admin/MessagesManager';
 import DiagnosisSettings from './pages/admin/DiagnosisSettings';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
+import DentalDiagnosis from './pages/DentalDiagnosis';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="diagnosis" element={<Diagnosis />} />
             <Route path="lab-diagnosis" element={<LabDiagnosis />} />
+            <Route path="dental-diagnosis" element={<DentalDiagnosis />} />
             <Route path="awareness" element={<Awareness />} />
             <Route path="awareness/disease/:id" element={<DiseaseDetails />} />
             <Route path="awareness/treatment/:id" element={<TreatmentDetails />} />

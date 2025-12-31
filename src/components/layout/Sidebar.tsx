@@ -10,13 +10,13 @@ import {
     Menu,
     X,
     ChevronRight,
-    Pill,
     Building2,
     LogIn,
     FlaskConical,
     LogOut,
     Settings as SettingsIcon,
-    ChevronDown
+    ChevronDown,
+    Smile
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminLoginModal from '../auth/AdminLoginModal';
@@ -58,6 +58,7 @@ const Sidebar = () => {
         { path: '/', label: 'الرئيسية', icon: Home },
         { path: '/diagnosis', label: 'التشخيص الذكي', icon: Activity },
         { path: '/lab-diagnosis', label: 'المختبر الذكي', icon: FlaskConical },
+        { path: '/dental-diagnosis', label: 'تشخيص الأسنان', icon: Smile },
         { path: '/awareness', label: 'توعية طبية', icon: BookOpen },
         { path: '/directory', label: 'دليل طبي', icon: Building2 },
         { path: '/contact', label: 'اتصل بنا', icon: Phone },
@@ -107,7 +108,7 @@ const Sidebar = () => {
                             "w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300",
                             "bg-cyan-500 shadow-cyan-500/30" // Cyan as base color
                         )}>
-                            <Pill size={24} />
+                            <Activity size={24} />
                         </div>
 
                         <AnimatePresence>
@@ -256,6 +257,20 @@ const Sidebar = () => {
                             )}
                         </div>
                     )}
+
+                    {/* Login Button when user is NOT logged in */}
+                    {!user && (
+                        <NavLink
+                            to="/auth"
+                            className={cn(
+                                "flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/20 transition-all hover:shadow-xl hover:scale-105",
+                                !isOpen && "justify-center p-3"
+                            )}
+                        >
+                            <LogIn size={20} />
+                            {isOpen && <span className="font-bold">تسجيل الدخول</span>}
+                        </NavLink>
+                    )}
                 </div>
 
             </motion.aside>
@@ -294,7 +309,7 @@ const Sidebar = () => {
                 <div className="h-20 flex items-center justify-between px-6 border-b border-slate-100">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
-                            <Pill size={24} />
+                            <Activity size={24} />
                         </div>
                         <span className="font-bold text-xl text-slate-800"><span className="text-primary">SmartTashkhees</span></span>
                     </div>
@@ -360,8 +375,8 @@ const Sidebar = () => {
 
                         return (
                             <NavLink
-                                key={item.path || index}
-                                to={item.path || '#'}
+                                key={index}
+                                to={item.path!}
                                 onClick={() => setIsOpen(false)}
                                 className={({ isActive }) => cn(
                                     "flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all",

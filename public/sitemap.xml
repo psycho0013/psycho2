@@ -24,6 +24,14 @@
     <priority>0.8</priority>
   </url>
   
+  <!-- تشخيص الأسنان -->
+  <url>
+    <loc>https://smarttashkhees-rust.vercel.app/dental-diagnosis</loc>
+    <lastmod>2026-01-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
   <!-- التوعية الصحية -->
   <url>
     <loc>https://smarttashkhees-rust.vercel.app/awareness</loc>
