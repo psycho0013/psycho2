@@ -5,10 +5,10 @@
 
 import type {
     DentalDiagnosisResult,
+    DentalProblem,
     SelectedDentalSymptom,
     UrgencyLevel
 } from '@/types/dental';
-import { dentalProblems } from '@/data/dentalProblems';
 
 // مضاعفات الشدة
 const SEVERITY_MULTIPLIER: Record<string, number> = {
@@ -25,6 +25,7 @@ const DEFAULT_WEIGHT = 50;
  */
 export function calculateDentalDiagnosisScores(
     selectedSymptoms: SelectedDentalSymptom[],
+    problems: DentalProblem[],
     followUpAnswers: Record<string, string | boolean> = {}
 ): DentalDiagnosisResult[] {
     // إنشاء خريطة للأعراض المختارة
@@ -35,7 +36,7 @@ export function calculateDentalDiagnosisScores(
         symptomMap.set(s.id, Math.max(existing, multiplier));
     });
 
-    const results: DentalDiagnosisResult[] = dentalProblems.map(problem => {
+    const results: DentalDiagnosisResult[] = problems.map(problem => {
         let score = 0;
         let maxPossibleScore = 0;
         const matchedSymptoms: string[] = [];
@@ -118,10 +119,11 @@ function hasEmergencySigns(
  */
 export function getTopDentalCandidates(
     selectedSymptoms: SelectedDentalSymptom[],
+    problems: DentalProblem[],
     followUpAnswers: Record<string, string | boolean> = {},
     topN: number = 5
 ): DentalDiagnosisResult[] {
-    const results = calculateDentalDiagnosisScores(selectedSymptoms, followUpAnswers);
+    const results = calculateDentalDiagnosisScores(selectedSymptoms, problems, followUpAnswers);
     return results.slice(0, topN);
 }
 

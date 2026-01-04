@@ -17,12 +17,13 @@ import {
     ChevronRight,
     Star
 } from 'lucide-react';
-import type { DentalDiagnosisState, DentalSeverity } from '@/types/dental';
-import { dentalSymptoms, dentalSymptomCategories } from '@/data/dentalSymptoms';
+import type { DentalDiagnosisState, DentalSeverity, DentalSymptom, SymptomCategory } from '@/types/dental';
 
 interface DentalStepSymptomsProps {
     state: DentalDiagnosisState;
     setState: React.Dispatch<React.SetStateAction<DentalDiagnosisState>>;
+    symptoms: DentalSymptom[];
+    categories: { id: SymptomCategory; name: string; icon: string }[];
     onNext: () => void;
     onPrev: () => void;
 }
@@ -63,7 +64,7 @@ const severityOptions: { id: DentalSeverity; label: string; description: string;
     },
 ];
 
-export default function DentalStepSymptoms({ state, setState, onNext, onPrev }: DentalStepSymptomsProps) {
+export default function DentalStepSymptoms({ state, setState, symptoms, categories, onNext, onPrev }: DentalStepSymptomsProps) {
     const [activeCategory, setActiveCategory] = useState<string>('pain');
     const [showSeverityModal, setShowSeverityModal] = useState<string | null>(null);
 
@@ -96,7 +97,7 @@ export default function DentalStepSymptoms({ state, setState, onNext, onPrev }: 
         }
     };
 
-    const currentSymptoms = dentalSymptoms.filter(s => s.category === activeCategory);
+    const currentSymptoms = symptoms.filter(s => s.category === activeCategory);
     const isValid = state.selectedSymptoms.length > 0;
 
     return (
@@ -112,7 +113,7 @@ export default function DentalStepSymptoms({ state, setState, onNext, onPrev }: 
 
             {/* شريط الفئات */}
             <div className="flex overflow-x-auto gap-3 pb-4 -mx-2 px-2 scrollbar-hide snap-x">
-                {dentalSymptomCategories.map(category => {
+                {categories.map(category => {
                     const isActive = activeCategory === category.id;
                     return (
                         <motion.button
@@ -229,7 +230,7 @@ export default function DentalStepSymptoms({ state, setState, onNext, onPrev }: 
                                     <div>
                                         <h3 className="text-2xl font-bold text-slate-800">تحديد الشدة</h3>
                                         <p className="text-slate-500 mt-2 font-medium bg-slate-100 inline-block px-3 py-1 rounded-lg">
-                                            {dentalSymptoms.find(s => s.id === showSeverityModal)?.name}
+                                            {symptoms.find(s => s.id === showSeverityModal)?.name}
                                         </p>
                                     </div>
                                     <button

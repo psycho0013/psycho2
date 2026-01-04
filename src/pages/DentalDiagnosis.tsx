@@ -11,9 +11,11 @@ import {
     Activity,
     MapPin,
     FileText,
-    Check
+    Check,
+    Loader2
 } from 'lucide-react';
 import type { DentalDiagnosisState } from '@/types/dental';
+import { useDentalData } from '@/hooks/useDentalData';
 import DentalStepInfo from '@/components/dental/DentalStepInfo';
 import DentalStepSymptoms from '@/components/dental/DentalStepSymptoms';
 import DentalFollowUp from '@/components/dental/DentalFollowUp';
@@ -50,6 +52,9 @@ export default function DentalDiagnosis() {
     const [state, setState] = useState<DentalDiagnosisState>(initialState);
     const containerRef = useRef<HTMLDivElement>(null);
 
+    // جلب البيانات من قاعدة البيانات أو الملفات الثابتة
+    const { symptoms, problems, categories, loading: dataLoading } = useDentalData();
+
     // تأثير الدخول
     useEffect(() => {
         if (containerRef.current) {
@@ -82,6 +87,18 @@ export default function DentalDiagnosis() {
         setState(initialState);
     };
 
+    // شاشة التحميل
+    if (dataLoading) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="text-center">
+                    <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+                    <p className="text-slate-600 font-medium">جاري تحميل البيانات...</p>
+                </div>
+            </div>
+        );
+    }
+
     // عرض الخطوة الحالية
     const renderStep = () => {
         switch (state.step) {
@@ -98,6 +115,8 @@ export default function DentalDiagnosis() {
                     <DentalStepSymptoms
                         state={state}
                         setState={setState}
+                        symptoms={symptoms}
+                        categories={categories}
                         onNext={nextStep}
                         onPrev={prevStep}
                     />
@@ -107,6 +126,7 @@ export default function DentalDiagnosis() {
                     <DentalFollowUp
                         state={state}
                         setState={setState}
+                        symptoms={symptoms}
                         onNext={nextStep}
                         onPrev={prevStep}
                     />
@@ -115,6 +135,8 @@ export default function DentalDiagnosis() {
                 return (
                     <DentalResult
                         state={state}
+                        symptoms={symptoms}
+                        problems={problems}
                         onRestart={handleRestart}
                     />
                 );

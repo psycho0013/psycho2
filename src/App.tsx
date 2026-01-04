@@ -24,6 +24,8 @@ import DataManager from './pages/admin/DataManager';
 import Settings from './pages/admin/Settings';
 import MessagesManager from './pages/admin/MessagesManager';
 import DiagnosisSettings from './pages/admin/DiagnosisSettings';
+import DentalSymptomsManager from './pages/admin/DentalSymptomsManager';
+import DentalProblemsManager from './pages/admin/DentalProblemsManager';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import DentalDiagnosis from './pages/DentalDiagnosis';
@@ -64,6 +66,8 @@ function App() {
             <Route path="directory" element={<DirectoryManager />} />
             <Route path="messages" element={<MessagesManager />} />
             <Route path="diagnosis-settings" element={<DiagnosisSettings />} />
+            <Route path="dental-symptoms" element={<DentalSymptomsManager />} />
+            <Route path="dental-problems" element={<DentalProblemsManager />} />
             <Route path="data" element={<DataManager />} />
             <Route path="settings" element={<Settings />} />
           </Route>

@@ -14,13 +14,13 @@ import {
     Calendar,
     AlertCircle
 } from 'lucide-react';
-import type { DentalDiagnosisState } from '@/types/dental';
-import { followUpQuestionsBySymptom } from '@/data/dentalSymptoms';
+import type { DentalDiagnosisState, DentalSymptom } from '@/types/dental';
 import DentalMap from './DentalMap';
 
 interface DentalFollowUpProps {
     state: DentalDiagnosisState;
     setState: React.Dispatch<React.SetStateAction<DentalDiagnosisState>>;
+    symptoms: DentalSymptom[];
     onNext: () => void;
     onPrev: () => void;
 }
@@ -33,21 +33,21 @@ const durationOptions = [
     { id: 'chronic', label: 'مشكلة مزمنة', color: 'text-red-600', bgColor: 'bg-red-50 border-red-200' },
 ];
 
-export default function DentalFollowUp({ state, setState, onNext, onPrev }: DentalFollowUpProps) {
-    // الحصول على الأسئلة الإضافية
+export default function DentalFollowUp({ state, setState, symptoms, onNext, onPrev }: DentalFollowUpProps) {
+    // الحصول على الأسئلة الإضافية من الأعراض المحددة
     const getRelevantQuestions = () => {
         const questions: { symptomId: string; question: string; type: 'boolean' | 'choice'; options?: string[]; key: string }[] = [];
 
-        state.selectedSymptoms.forEach(symptom => {
-            const symptomQuestions = followUpQuestionsBySymptom[symptom.id];
-            if (symptomQuestions) {
-                symptomQuestions.forEach((q, idx) => {
+        state.selectedSymptoms.forEach(selectedSymptom => {
+            // ابحث عن العرض في قائمة الأعراض
+            const symptom = symptoms.find(s => s.id === selectedSymptom.id);
+            if (symptom?.followUpQuestions) {
+                symptom.followUpQuestions.forEach((q: string, idx: number) => {
                     questions.push({
-                        symptomId: symptom.id,
-                        question: q.question,
-                        type: q.type,
-                        options: q.options,
-                        key: `${symptom.id}_${idx}`,
+                        symptomId: selectedSymptom.id,
+                        question: q,
+                        type: 'boolean', // الأسئلة من DB هي نصوص عادية
+                        key: `${selectedSymptom.id}_${idx}`,
                     });
                 });
             }

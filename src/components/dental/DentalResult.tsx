@@ -17,9 +17,8 @@ import {
     Clock,
     Activity
 } from 'lucide-react';
-import type { DentalDiagnosisState } from '@/types/dental';
+import type { DentalDiagnosisState, DentalSymptom, DentalProblem } from '@/types/dental';
 import { PROBLEM_AREA_NAMES } from '@/types/dental';
-import { dentalSymptoms } from '@/data/dentalSymptoms';
 import {
     getTopDentalCandidates,
     formatResultsForDisplay,
@@ -29,25 +28,28 @@ import UrgencyBadge from './UrgencyBadge';
 
 interface DentalResultProps {
     state: DentalDiagnosisState;
+    symptoms: DentalSymptom[];
+    problems: DentalProblem[];
     onRestart?: () => void;
 }
 
-export default function DentalResult({ state, onRestart }: DentalResultProps) {
+export default function DentalResult({ state, symptoms, problems, onRestart }: DentalResultProps) {
     const { primary, secondary, urgency } = useMemo(() => {
         const candidates = getTopDentalCandidates(
             state.selectedSymptoms,
+            problems,
             state.followUpAnswers,
             5
         );
         return formatResultsForDisplay(candidates);
-    }, [state.selectedSymptoms, state.followUpAnswers]);
+    }, [state.selectedSymptoms, state.followUpAnswers, problems]);
 
     const temporaryAdvice = useMemo(() => {
         return getTemporaryAdvice(state.selectedSymptoms);
     }, [state.selectedSymptoms]);
 
     const getSymptomName = (id: string) => {
-        return dentalSymptoms.find(s => s.id === id)?.name || id;
+        return symptoms.find(s => s.id === id)?.name || id;
     };
 
     const getScoreColor = (score: number) => {
