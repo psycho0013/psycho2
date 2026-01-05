@@ -3,7 +3,7 @@
  * صفحة نتائج تشخيص الأسنان - النسخة المحسنة
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     AlertTriangle,
@@ -15,7 +15,8 @@ import {
     ChevronRight,
     MapPin,
     Clock,
-    Activity
+    Activity,
+    Stethoscope
 } from 'lucide-react';
 import type { DentalDiagnosisState, DentalSymptom, DentalProblem } from '@/types/dental';
 import { PROBLEM_AREA_NAMES } from '@/types/dental';
@@ -25,6 +26,7 @@ import {
     getTemporaryAdvice
 } from '@/lib/dentalMatcher';
 import UrgencyBadge from './UrgencyBadge';
+import DoctorsModal from './DoctorsModal';
 
 interface DentalResultProps {
     state: DentalDiagnosisState;
@@ -34,6 +36,8 @@ interface DentalResultProps {
 }
 
 export default function DentalResult({ state, symptoms, problems, onRestart }: DentalResultProps) {
+    const [showDoctorsModal, setShowDoctorsModal] = useState(false);
+
     const { primary, secondary, urgency } = useMemo(() => {
         const candidates = getTopDentalCandidates(
             state.selectedSymptoms,
@@ -340,6 +344,23 @@ export default function DentalResult({ state, symptoms, problems, onRestart }: D
                 </p>
             </motion.div>
 
+            {/* زر التواصل مع طبيب */}
+            <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9 }}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowDoctorsModal(true)}
+                className="w-full py-5 rounded-2xl font-bold bg-gradient-to-r from-primary via-blue-600 to-indigo-600 
+                         text-white shadow-2xl shadow-primary/30 transition-all flex items-center justify-center gap-3 relative overflow-hidden"
+            >
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz48L3N2Zz4=')] opacity-30" />
+                <Stethoscope size={24} className="relative z-10" />
+                <span className="text-lg relative z-10">تواصل مع طبيب مختص</span>
+                <ChevronRight size={20} className="relative z-10" />
+            </motion.button>
+
             {/* أزرار الإجراءات */}
             <div className="flex flex-col sm:flex-row gap-4">
                 <motion.button
@@ -363,6 +384,9 @@ export default function DentalResult({ state, symptoms, problems, onRestart }: D
                     <span>حفظ التقرير</span>
                 </motion.button>
             </div>
+
+            {/* Modal الأطباء */}
+            <DoctorsModal isOpen={showDoctorsModal} onClose={() => setShowDoctorsModal(false)} />
         </div>
     );
 }

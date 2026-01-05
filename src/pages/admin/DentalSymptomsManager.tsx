@@ -58,23 +58,37 @@ const DentalSymptomsManager = () => {
             followUpQuestions: currentSymptom.followUpQuestions
         };
 
-        const success = await DentalDbManager.saveDentalSymptom(symptomToSave);
-        if (success) {
-            await loadSymptoms();
-            setIsEditing(false);
-            resetForm();
+        // Optimistic update - تحديث فوري بدون انتظار
+        if (currentSymptom.id) {
+            // تعديل
+            setSymptomsList(prev => prev.map(s => s.id === symptomToSave.id ? symptomToSave : s));
         } else {
+            // إضافة جديد
+            setSymptomsList(prev => [...prev, symptomToSave]);
+        }
+
+        setIsEditing(false);
+        resetForm();
+
+        // حفظ في الخلفية
+        const success = await DentalDbManager.saveDentalSymptom(symptomToSave);
+        if (!success) {
+            // إذا فشل، أعد تحميل البيانات
             alert('حدث خطأ أثناء حفظ العرض');
+            loadSymptoms();
         }
     };
 
     const handleDelete = async (id: string) => {
         if (window.confirm('هل أنت متأكد من حذف هذا العرض؟')) {
+            // Optimistic delete - حذف فوري
+            setSymptomsList(prev => prev.filter(s => s.id !== id));
+
+            // حذف في الخلفية
             const success = await DentalDbManager.deleteDentalSymptom(id);
-            if (success) {
-                await loadSymptoms();
-            } else {
+            if (!success) {
                 alert('حدث خطأ أثناء حذف العرض');
+                loadSymptoms();
             }
         }
     };
@@ -221,8 +235,8 @@ const DentalSymptomsManager = () => {
                                         type="button"
                                         onClick={() => toggleSeverity(sev.id)}
                                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${currentSymptom.severities?.includes(sev.id)
-                                                ? sev.color + ' ring-2 ring-offset-1'
-                                                : 'bg-slate-100 text-slate-400'
+                                            ? sev.color + ' ring-2 ring-offset-1'
+                                            : 'bg-slate-100 text-slate-400'
                                             }`}
                                     >
                                         {sev.name}

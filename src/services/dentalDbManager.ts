@@ -31,9 +31,6 @@ export class DentalDbManager {
             return [];
         }
 
-        console.log('🦷 Raw dental symptoms from Supabase:', data?.length, 'items');
-        console.log('🦷 First item:', data?.[0]);
-
         // Map snake_case to camelCase
         const mapped = (data || []).map(item => ({
             id: item.id,
@@ -44,13 +41,6 @@ export class DentalDbManager {
             description: item.description,
             followUpQuestions: item.follow_up_questions || []
         }));
-
-        console.log('🦷 Mapped symptoms:', mapped.length, 'items');
-
-        // Find the new symptom
-        const painSymptoms = mapped.filter(s => s.category === 'pain');
-        console.log('🦷 Pain category symptoms:', painSymptoms.length);
-        console.log('🦷 All pain symptoms:', painSymptoms.map(s => s.name));
 
         return mapped;
     }

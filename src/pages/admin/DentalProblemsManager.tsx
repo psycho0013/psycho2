@@ -80,23 +80,33 @@ const DentalProblemsManager = () => {
             warning: currentProblem.warning
         };
 
-        const success = await DentalDbManager.saveDentalProblem(problemToSave);
-        if (success) {
-            await loadData();
-            setIsEditing(false);
-            resetForm();
+        // Optimistic update - تحديث فوري
+        if (currentProblem.id) {
+            setProblemsList(prev => prev.map(p => p.id === problemToSave.id ? problemToSave : p));
         } else {
+            setProblemsList(prev => [...prev, problemToSave]);
+        }
+
+        setIsEditing(false);
+        resetForm();
+
+        // حفظ في الخلفية
+        const success = await DentalDbManager.saveDentalProblem(problemToSave);
+        if (!success) {
             alert('حدث خطأ أثناء حفظ المشكلة');
+            loadData();
         }
     };
 
     const handleDelete = async (id: string) => {
         if (window.confirm('هل أنت متأكد من حذف هذه المشكلة؟')) {
+            // Optimistic delete
+            setProblemsList(prev => prev.filter(p => p.id !== id));
+
             const success = await DentalDbManager.deleteDentalProblem(id);
-            if (success) {
-                await loadData();
-            } else {
+            if (!success) {
                 alert('حدث خطأ أثناء حذف المشكلة');
+                loadData();
             }
         }
     };
@@ -280,8 +290,8 @@ const DentalProblemsManager = () => {
                                     type="button"
                                     onClick={() => setCurrentProblem({ ...currentProblem, urgency: opt.id })}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${currentProblem.urgency === opt.id
-                                            ? opt.color + ' ring-2 ring-offset-2'
-                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        ? opt.color + ' ring-2 ring-offset-2'
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                         }`}
                                 >
                                     {opt.name}
@@ -313,8 +323,8 @@ const DentalProblemsManager = () => {
                                         <div
                                             key={symptom.id}
                                             className={`p-3 rounded-lg border transition-all ${isSelected
-                                                    ? 'bg-primary/10 border-primary'
-                                                    : 'bg-white border-slate-200 hover:border-slate-300'
+                                                ? 'bg-primary/10 border-primary'
+                                                : 'bg-white border-slate-200 hover:border-slate-300'
                                                 }`}
                                         >
                                             <label className="flex items-center gap-2 cursor-pointer">
