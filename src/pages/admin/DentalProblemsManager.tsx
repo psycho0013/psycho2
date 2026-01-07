@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, Edit2, X, AlertTriangle, Stethoscope, ChevronDown, ChevronUp } from 'lucide-react';
 import type { DentalProblem, DentalSymptom, UrgencyLevel, SeverityLevel } from '@/types/dental';
 import DentalDbManager from '@/services/dentalDbManager';
+import { useToast } from '@/components/ui/Toast';
 
 const urgencyOptions: { id: UrgencyLevel; name: string; color: string }[] = [
     { id: 'emergency', name: 'طوارئ 🚨', color: 'bg-red-500 text-white' },
@@ -16,6 +17,7 @@ const urgencyOptions: { id: UrgencyLevel; name: string; color: string }[] = [
 ];
 
 const DentalProblemsManager = () => {
+    const toast = useToast();
     const [problemsList, setProblemsList] = useState<DentalProblem[]>([]);
     const [symptomsList, setSymptomsList] = useState<DentalSymptom[]>([]);
     const [isEditing, setIsEditing] = useState(false);
@@ -60,7 +62,7 @@ const DentalProblemsManager = () => {
 
     const handleSave = async () => {
         if (!currentProblem.name || !currentProblem.name_en || !currentProblem.description) {
-            alert('يرجى ملء جميع الحقول المطلوبة');
+            toast.warning('يرجى ملء جميع الحقول المطلوبة');
             return;
         }
 
@@ -93,8 +95,10 @@ const DentalProblemsManager = () => {
         // حفظ في الخلفية
         const success = await DentalDbManager.saveDentalProblem(problemToSave);
         if (!success) {
-            alert('حدث خطأ أثناء حفظ المشكلة');
+            toast.error('حدث خطأ أثناء حفظ المشكلة');
             loadData();
+        } else {
+            toast.success('تم حفظ المشكلة بنجاح');
         }
     };
 
@@ -105,8 +109,10 @@ const DentalProblemsManager = () => {
 
             const success = await DentalDbManager.deleteDentalProblem(id);
             if (!success) {
-                alert('حدث خطأ أثناء حذف المشكلة');
+                toast.error('حدث خطأ أثناء حذف المشكلة');
                 loadData();
+            } else {
+                toast.success('تم حذف المشكلة بنجاح');
             }
         }
     };

@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, Edit2, X } from 'lucide-react';
 import type { Treatment } from '@/types/medical';
 import DbManager from '@/services/dbManager';
+import { useToast } from '@/components/ui/Toast';
 
 const TreatmentsManager = () => {
+    const toast = useToast();
     const [treatmentsList, setTreatmentsList] = useState<Treatment[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -45,8 +47,9 @@ const TreatmentsManager = () => {
         if (success) {
             await loadData();
             resetForm();
+            toast.success('تم حفظ العلاج بنجاح');
         } else {
-            alert('حدث خطأ أثناء حفظ البيانات');
+            toast.error('حدث خطأ أثناء حفظ البيانات');
         }
     };
 
@@ -61,8 +64,9 @@ const TreatmentsManager = () => {
             const success = await DbManager.deleteTreatment(id);
             if (success) {
                 await loadData();
+                toast.success('تم حذف العلاج بنجاح');
             } else {
-                alert('حدث خطأ أثناء حذف البيانات');
+                toast.error('حدث خطأ أثناء حذف البيانات');
             }
         }
     };

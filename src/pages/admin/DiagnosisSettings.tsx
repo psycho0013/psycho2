@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, Edit2, X, AlertTriangle, Activity, HeartPulse } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/ui/Toast';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -36,6 +37,7 @@ interface SymptomSeverityRule {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const DiagnosisSettings = () => {
+    const toast = useToast();
     const [activeTab, setActiveTab] = useState<'chronic' | 'severity'>('chronic');
 
     // Chronic Disease Correlations
@@ -115,7 +117,7 @@ const DiagnosisSettings = () => {
                 .update(dataToSave)
                 .eq('id', chronicEditingId);
             if (error) {
-                alert('حدث خطأ: ' + error.message);
+                toast.error('حدث خطأ: ' + error.message);
                 return;
             }
         } else {
@@ -123,7 +125,7 @@ const DiagnosisSettings = () => {
                 .from('chronic_disease_correlations')
                 .insert(dataToSave);
             if (error) {
-                alert('حدث خطأ: ' + error.message);
+                toast.error('حدث خطأ: ' + error.message);
                 return;
             }
         }
@@ -153,7 +155,7 @@ const DiagnosisSettings = () => {
             .eq('id', id);
 
         if (error) {
-            alert('حدث خطأ: ' + error.message);
+            toast.error('حدث خطأ: ' + error.message);
         } else {
             await loadData();
         }
@@ -193,7 +195,7 @@ const DiagnosisSettings = () => {
                 .update(dataToSave)
                 .eq('id', severityEditingId);
             if (error) {
-                alert('حدث خطأ: ' + error.message);
+                toast.error('حدث خطأ: ' + error.message);
                 return;
             }
         } else {
@@ -201,7 +203,7 @@ const DiagnosisSettings = () => {
                 .from('symptom_severity_rules')
                 .insert(dataToSave);
             if (error) {
-                alert('حدث خطأ: ' + error.message);
+                toast.error('حدث خطأ: ' + error.message);
                 return;
             }
         }
@@ -229,7 +231,7 @@ const DiagnosisSettings = () => {
             .eq('id', id);
 
         if (error) {
-            alert('حدث خطأ: ' + error.message);
+            toast.error('حدث خطأ: ' + error.message);
         } else {
             await loadData();
         }
@@ -329,8 +331,8 @@ const DiagnosisSettings = () => {
                 <button
                     onClick={() => setActiveTab('chronic')}
                     className={`px-6 py-3 font-medium transition-colors relative ${activeTab === 'chronic'
-                            ? 'text-primary'
-                            : 'text-slate-500 hover:text-slate-700'
+                        ? 'text-primary'
+                        : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
                     <div className="flex items-center gap-2">
@@ -345,8 +347,8 @@ const DiagnosisSettings = () => {
                 <button
                     onClick={() => setActiveTab('severity')}
                     className={`px-6 py-3 font-medium transition-colors relative ${activeTab === 'severity'
-                            ? 'text-primary'
-                            : 'text-slate-500 hover:text-slate-700'
+                        ? 'text-primary'
+                        : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
                     <div className="flex items-center gap-2">

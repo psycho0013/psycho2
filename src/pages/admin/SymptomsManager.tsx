@@ -3,8 +3,10 @@ import { Save, Plus, Trash2, Edit2, X, AlertTriangle } from 'lucide-react';
 import type { Symptom } from '@/types/medical';
 import { symptomCategories } from '@/types/medical';
 import DbManager from '@/services/dbManager';
+import { useToast } from '@/components/ui/Toast';
 
 const SymptomsManager = () => {
+    const toast = useToast();
     const [symptomsList, setSymptomsList] = useState<Symptom[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [currentSymptom, setCurrentSymptom] = useState<Partial<Symptom>>({
@@ -30,7 +32,7 @@ const SymptomsManager = () => {
 
     const handleSave = async () => {
         if (!currentSymptom.name_ar || !currentSymptom.name_en || !currentSymptom.category) {
-            alert('يرجى ملء جميع الحقول المطلوبة');
+            toast.warning('يرجى ملء جميع الحقول المطلوبة');
             return;
         }
 
@@ -49,8 +51,9 @@ const SymptomsManager = () => {
             await loadSymptoms();
             setIsEditing(false);
             resetForm();
+            toast.success('تم حفظ العرض بنجاح');
         } else {
-            alert('حدث خطأ أثناء حفظ العرض');
+            toast.error('حدث خطأ أثناء حفظ العرض');
         }
     };
 
@@ -59,8 +62,9 @@ const SymptomsManager = () => {
             const success = await DbManager.deleteSymptom(id);
             if (success) {
                 await loadSymptoms();
+                toast.success('تم حذف العرض بنجاح');
             } else {
-                alert('حدث خطأ أثناء حذف العرض');
+                toast.error('حدث خطأ أثناء حذف العرض');
             }
         }
     };

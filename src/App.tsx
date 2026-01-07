@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
+import SEOHead from './components/SEOHead';
 import { SecurityProvider } from './contexts/SecurityContext';
+import { ToastProvider } from './components/ui/Toast';
 import { EncryptionPrompt } from './components/Security/EncryptionPrompt';
 import MainLayout from './components/layout/MainLayout';
 import Home from './pages/Home';
@@ -35,45 +37,48 @@ function App() {
   return (
     <BrowserRouter>
       <SecurityProvider>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Home />} />
-            <Route path="diagnosis" element={<Diagnosis />} />
-            <Route path="lab-diagnosis" element={<LabDiagnosis />} />
-            <Route path="dental-diagnosis" element={<DentalDiagnosis />} />
-            <Route path="awareness" element={<Awareness />} />
-            <Route path="awareness/disease/:id" element={<DiseaseDetails />} />
-            <Route path="awareness/treatment/:id" element={<TreatmentDetails />} />
-            <Route path="directory" element={<MedicalDirectory />} />
-            <Route path="directory/:id" element={<DirectoryItemDetails />} />
-            <Route path="about" element={<About />} />
-            <Route path="contact" element={<Contact />} />
-            <Route path="profile" element={<Profile />} />
-          </Route>
+        <ToastProvider>
+          <ScrollToTop />
+          <SEOHead />
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Home />} />
+              <Route path="diagnosis" element={<Diagnosis />} />
+              <Route path="lab-diagnosis" element={<LabDiagnosis />} />
+              <Route path="dental-diagnosis" element={<DentalDiagnosis />} />
+              <Route path="awareness" element={<Awareness />} />
+              <Route path="awareness/disease/:id" element={<DiseaseDetails />} />
+              <Route path="awareness/treatment/:id" element={<TreatmentDetails />} />
+              <Route path="directory" element={<MedicalDirectory />} />
+              <Route path="directory/:id" element={<DirectoryItemDetails />} />
+              <Route path="about" element={<About />} />
+              <Route path="contact" element={<Contact />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
 
-          {/* Admin Routes - Protected by EncryptionPrompt */}
-          <Route path="/admin" element={
-            <EncryptionPrompt>
-              <AdminLayout />
-            </EncryptionPrompt>
-          }>
-            <Route index element={<Dashboard />} />
-            <Route path="content" element={<ContentEditor />} />
-            <Route path="diseases" element={<DiseasesManager />} />
-            <Route path="symptoms" element={<SymptomsManager />} />
-            <Route path="treatments" element={<TreatmentsManager />} />
-            <Route path="directory" element={<DirectoryManager />} />
-            <Route path="messages" element={<MessagesManager />} />
-            <Route path="diagnosis-settings" element={<DiagnosisSettings />} />
-            <Route path="dental-symptoms" element={<DentalSymptomsManager />} />
-            <Route path="dental-problems" element={<DentalProblemsManager />} />
-            <Route path="dentists" element={<DentistsManager />} />
-            <Route path="data" element={<DataManager />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-        </Routes>
+            {/* Admin Routes - Protected by EncryptionPrompt */}
+            <Route path="/admin" element={
+              <EncryptionPrompt>
+                <AdminLayout />
+              </EncryptionPrompt>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="content" element={<ContentEditor />} />
+              <Route path="diseases" element={<DiseasesManager />} />
+              <Route path="symptoms" element={<SymptomsManager />} />
+              <Route path="treatments" element={<TreatmentsManager />} />
+              <Route path="directory" element={<DirectoryManager />} />
+              <Route path="messages" element={<MessagesManager />} />
+              <Route path="diagnosis-settings" element={<DiagnosisSettings />} />
+              <Route path="dental-symptoms" element={<DentalSymptomsManager />} />
+              <Route path="dental-problems" element={<DentalProblemsManager />} />
+              <Route path="dentists" element={<DentistsManager />} />
+              <Route path="data" element={<DataManager />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Routes>
+        </ToastProvider>
       </SecurityProvider>
     </BrowserRouter>
   );

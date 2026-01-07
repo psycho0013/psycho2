@@ -7,8 +7,10 @@ import { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, Edit2, X, AlertTriangle, Stethoscope, MapPin, Phone } from 'lucide-react';
 import type { Dentist, IraqCity, DentalSpecialization } from '@/types/dentist';
 import DentistDbManager from '@/services/dentistDbManager';
+import { useToast } from '@/components/ui/Toast';
 
 const DentistsManager = () => {
+    const toast = useToast();
     const [dentistsList, setDentistsList] = useState<Dentist[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [currentDentist, setCurrentDentist] = useState<Partial<Dentist>>({
@@ -51,7 +53,7 @@ const DentistsManager = () => {
 
     const handleSave = async () => {
         if (!currentDentist.name || !currentDentist.clinic_name || !currentDentist.phone) {
-            alert('يرجى ملء جميع الحقول المطلوبة');
+            toast.warning('يرجى ملء جميع الحقول المطلوبة');
             return;
         }
 
@@ -84,8 +86,10 @@ const DentistsManager = () => {
 
         const success = await DentistDbManager.saveDentist(dentistToSave);
         if (!success) {
-            alert('حدث خطأ أثناء حفظ الطبيب');
+            toast.error('حدث خطأ أثناء حفظ الطبيب');
             loadDentists();
+        } else {
+            toast.success('تم حفظ الطبيب بنجاح');
         }
     };
 
@@ -95,8 +99,10 @@ const DentistsManager = () => {
 
             const success = await DentistDbManager.deleteDentist(id);
             if (!success) {
-                alert('حدث خطأ أثناء حذف الطبيب');
+                toast.error('حدث خطأ أثناء حذف الطبيب');
                 loadDentists();
+            } else {
+                toast.success('تم حذف الطبيب بنجاح');
             }
         }
     };

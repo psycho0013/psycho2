@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { useToast } from '@/components/ui/Toast';
 import './Auth.css';
 
 const Auth = () => {
+    const toast = useToast();
     const [isPanelActive, setIsPanelActive] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -43,7 +45,7 @@ const Auth = () => {
             if (error) throw error;
             if (data.user) {
                 // Usually requires email confirmation, inform user or navigate
-                alert('Check your email for confirmation link!');
+                toast.info('Check your email for confirmation link!');
                 setIsPanelActive(false); // Switch to login view
             }
         } catch (err: any) {

@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, Edit2, X, AlertTriangle, Smile } from 'lucide-react';
 import type { DentalSymptom, SymptomCategory, DentalSeverity } from '@/types/dental';
 import DentalDbManager from '@/services/dentalDbManager';
+import { useToast } from '@/components/ui/Toast';
 
 const severityOptions: { id: DentalSeverity; name: string; color: string }[] = [
     { id: 'mild', name: 'خفيف', color: 'bg-green-100 text-green-700' },
@@ -15,6 +16,7 @@ const severityOptions: { id: DentalSeverity; name: string; color: string }[] = [
 ];
 
 const DentalSymptomsManager = () => {
+    const toast = useToast();
     const [symptomsList, setSymptomsList] = useState<DentalSymptom[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [currentSymptom, setCurrentSymptom] = useState<Partial<DentalSymptom>>({
@@ -44,7 +46,7 @@ const DentalSymptomsManager = () => {
 
     const handleSave = async () => {
         if (!currentSymptom.name || !currentSymptom.name_en || !currentSymptom.category) {
-            alert('يرجى ملء جميع الحقول المطلوبة');
+            toast.warning('يرجى ملء جميع الحقول المطلوبة');
             return;
         }
 
@@ -73,9 +75,10 @@ const DentalSymptomsManager = () => {
         // حفظ في الخلفية
         const success = await DentalDbManager.saveDentalSymptom(symptomToSave);
         if (!success) {
-            // إذا فشل، أعد تحميل البيانات
-            alert('حدث خطأ أثناء حفظ العرض');
+            toast.error('حدث خطأ أثناء حفظ العرض');
             loadSymptoms();
+        } else {
+            toast.success('تم حفظ العرض بنجاح');
         }
     };
 
@@ -87,8 +90,10 @@ const DentalSymptomsManager = () => {
             // حذف في الخلفية
             const success = await DentalDbManager.deleteDentalSymptom(id);
             if (!success) {
-                alert('حدث خطأ أثناء حذف العرض');
+                toast.error('حدث خطأ أثناء حذف العرض');
                 loadSymptoms();
+            } else {
+                toast.success('تم حذف العرض بنجاح');
             }
         }
     };
