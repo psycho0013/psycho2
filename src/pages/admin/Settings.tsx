@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { KeyManager } from '../../components/Security/KeyManager';
-import { Save, Key, Trash2, RotateCcw, Globe, Mail, Phone, MapPin, Facebook, Twitter, Instagram, AlertCircle, CheckCircle, Shield } from 'lucide-react';
+import { Save, Key, Trash2, RotateCcw, Globe, Mail, Phone, MapPin, Facebook, Twitter, Instagram, AlertCircle, CheckCircle, Shield, Lock } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/ui/Toast';
 
 interface SiteSettings {
     siteName: string;
@@ -14,6 +16,7 @@ interface SiteSettings {
 }
 
 const Settings = () => {
+    const toast = useToast();
     const [activeTab, setActiveTab] = useState<'general' | 'account' | 'system' | 'security'>('general');
     const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
 
@@ -32,10 +35,11 @@ const Settings = () => {
         };
     });
 
-    // Account Settings
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    // Account Settings - Vault Password
+    const [vaultCurrentPassword, setVaultCurrentPassword] = useState('');
+    const [vaultNewPassword, setVaultNewPassword] = useState('');
+    const [vaultConfirmPassword, setVaultConfirmPassword] = useState('');
+    const [savingVault, setSavingVault] = useState(false);
 
     const handleSaveSettings = () => {
         localStorage.setItem('phy_site_settings', JSON.stringify(settings));
@@ -43,31 +47,55 @@ const Settings = () => {
         setTimeout(() => setStatus({ type: null, message: '' }), 3000);
     };
 
-    const handleChangePassword = (e: React.FormEvent) => {
+    // تغيير باسورد الخزنة (Vault Password)
+    const handleChangeVaultPassword = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSavingVault(true);
 
-        if (currentPassword !== 'admin123') {
-            setStatus({ type: 'error', message: 'كلمة المرور الحالية غير صحيحة' });
+        // جلب الباسورد الحالي من Supabase
+        const { data: configData } = await supabase
+            .from('app_config')
+            .select('value')
+            .eq('key', 'admin_vault_password')
+            .single();
+
+        const currentStoredHash = configData?.value || 'YWRtaW4xMjM0NTY3OA=='; // default: admin12345678
+        const inputHash = btoa(vaultCurrentPassword);
+
+        if (inputHash !== currentStoredHash) {
+            toast.error('كلمة المرور الحالية غير صحيحة');
+            setSavingVault(false);
             return;
         }
 
-        if (newPassword.length < 6) {
-            setStatus({ type: 'error', message: 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل' });
+        if (vaultNewPassword.length < 8) {
+            toast.error('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل');
+            setSavingVault(false);
             return;
         }
 
-        if (newPassword !== confirmPassword) {
-            setStatus({ type: 'error', message: 'كلمات المرور غير متطابقة' });
+        if (vaultNewPassword !== vaultConfirmPassword) {
+            toast.error('كلمات المرور غير متطابقة');
+            setSavingVault(false);
             return;
         }
 
-        // In a real app, this would update the password in the backend
-        localStorage.setItem('phy_admin_password', newPassword);
-        setStatus({ type: 'success', message: 'تم تغيير كلمة المرور بنجاح!' });
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        setTimeout(() => setStatus({ type: null, message: '' }), 3000);
+        // حفظ الباسورد الجديد في Supabase
+        const newHash = btoa(vaultNewPassword);
+        const { error } = await supabase
+            .from('app_config')
+            .upsert({ key: 'admin_vault_password', value: newHash }, { onConflict: 'key' });
+
+        if (error) {
+            toast.error('حدث خطأ أثناء حفظ كلمة المرور');
+            console.error(error);
+        } else {
+            toast.success('تم تغيير باسورد الخزنة بنجاح!');
+            setVaultCurrentPassword('');
+            setVaultNewPassword('');
+            setVaultConfirmPassword('');
+        }
+        setSavingVault(false);
     };
 
     const handleResetData = () => {
@@ -260,55 +288,75 @@ const Settings = () => {
 
             {/* Account Settings */}
             {activeTab === 'account' && (
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                    <h3 className="text-lg font-bold text-slate-800 mb-6">تغيير كلمة المرور</h3>
-                    <form onSubmit={handleChangePassword} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">كلمة المرور الحالية</label>
-                            <input
-                                type="password"
-                                value={currentPassword}
-                                onChange={(e) => setCurrentPassword(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
-                                required
-                            />
+                <div className="space-y-6">
+                    {/* Vault Password Section */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-red-100 rounded-xl">
+                                <Lock size={20} className="text-red-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800">باسورد الخزنة (Vault Password)</h3>
+                                <p className="text-sm text-slate-500">الواجهة الثانية للحماية - يُستخدم للدخول للوحة الإدارة</p>
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">كلمة المرور الجديدة</label>
-                            <input
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
-                                required
-                                minLength={6}
-                            />
-                            <p className="text-xs text-slate-500 mt-1">يجب أن تكون 6 أحرف على الأقل</p>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">تأكيد كلمة المرور</label>
-                            <input
-                                type="password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
-                                required
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
-                        >
-                            <Key size={20} />
-                            تغيير كلمة المرور
-                        </button>
-                    </form>
+                        <form onSubmit={handleChangeVaultPassword} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">كلمة المرور الحالية</label>
+                                <input
+                                    type="password"
+                                    value={vaultCurrentPassword}
+                                    onChange={(e) => setVaultCurrentPassword(e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                    placeholder="الباسورد الافتراضي: admin12345678"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">كلمة المرور الجديدة</label>
+                                <input
+                                    type="password"
+                                    value={vaultNewPassword}
+                                    onChange={(e) => setVaultNewPassword(e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                    required
+                                    minLength={8}
+                                />
+                                <p className="text-xs text-slate-500 mt-1">يجب أن تكون 8 أحرف على الأقل</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">تأكيد كلمة المرور</label>
+                                <input
+                                    type="password"
+                                    value={vaultConfirmPassword}
+                                    onChange={(e) => setVaultConfirmPassword(e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-primary outline-none"
+                                    required
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={savingVault}
+                                className="w-full py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                <Lock size={20} />
+                                {savingVault ? 'جاري الحفظ...' : 'تغيير باسورد الخزنة'}
+                            </button>
+                        </form>
+                    </div>
 
-                    <div className="mt-8 pt-6 border-t border-slate-100">
-                        <h4 className="font-bold text-slate-800 mb-2">معلومات الحساب</h4>
-                        <div className="text-sm text-slate-600 space-y-1">
-                            <p>اسم المستخدم: <span className="font-medium">admin</span></p>
-                            <p>الدور: <span className="font-medium">مدير النظام</span></p>
+                    {/* Info Box */}
+                    <div className="bg-amber-50 p-5 rounded-xl border border-amber-100">
+                        <div className="flex items-start gap-3">
+                            <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={20} />
+                            <div className="text-sm text-amber-800">
+                                <p className="font-bold mb-1">ملاحظة مهمة:</p>
+                                <ul className="list-disc list-inside space-y-1">
+                                    <li><strong>باسورد الخزنة:</strong> يُستخدم للدخول للوحة الإدارة (الواجهة الثانية)</li>
+                                    <li>الباسورد محفوظ بأمان في Supabase</li>
+                                    <li>الباسورد الافتراضي: <code className="bg-amber-100 px-1 rounded">admin12345678</code></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>

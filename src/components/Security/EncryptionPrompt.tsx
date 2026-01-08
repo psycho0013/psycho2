@@ -22,7 +22,7 @@ export const EncryptionPrompt = ({ children }: { children: React.ReactNode }) =>
 
         const success = await login(password);
         if (!success) {
-            setError('Failed to generate key. Please try again.');
+            setError('كلمة المرور غير صحيحة - Incorrect password');
         }
         setLoading(false);
     };

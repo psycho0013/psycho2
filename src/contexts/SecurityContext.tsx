@@ -20,6 +20,26 @@ export const SecurityProvider = ({ children }: { children: ReactNode }) => {
 
     const login = useCallback(async (password: string) => {
         try {
+            // جلب hash الباسورد من قاعدة البيانات
+            const { data: configData, error: configError } = await supabase
+                .from('app_config')
+                .select('value')
+                .eq('key', 'admin_vault_password')
+                .single();
+
+            // إذا ما وجد الباسورد في قاعدة البيانات، استخدم الباسورد الافتراضي
+            let storedHash = 'YWRtaW4xMjM0NTY3OA=='; // admin12345678 - default
+            if (configData && !configError) {
+                storedHash = configData.value;
+            }
+
+            // تحقق من الباسورد
+            const inputHash = btoa(password);
+            if (inputHash !== storedHash) {
+                console.error('Invalid admin password');
+                return false;
+            }
+
             const masterKey = await EncryptionService.deriveKey(password);
             setEncryptionKey(masterKey);
 
@@ -39,7 +59,6 @@ export const SecurityProvider = ({ children }: { children: ReactNode }) => {
                     }
                 } catch (e) {
                     console.error('Failed to decrypt private key:', e);
-                    // We don't fail login if key fetch fails, but admin won't be able to decrypt patient data
                 }
             }
 
