@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
         console.log('🔍 Analyzing X-Ray image with Gemini 2.5 Flash...');
 
         const genAI = new GoogleGenerativeAI(geminiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-04-17' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         // Extract base64 data (remove data URL prefix if present)
         let base64Data = image;
@@ -141,10 +141,11 @@ module.exports = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ X-Ray Analyzer error:', error);
+        console.error('❌ X-Ray Analyzer error:', error.message || error);
+        console.error('❌ Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
         res.status(500).json({
             error: 'حدث خطأ أثناء تحليل الصورة',
-            details: error.message
+            details: error.message || 'Unknown error'
         });
     }
 };

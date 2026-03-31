@@ -28,6 +28,7 @@ interface AnalysisResult {
     not_medical?: boolean;
     message?: string;
     error?: string;
+    details?: string;
     analysis?: {
         image_type: string;
         body_part: string;
@@ -74,6 +75,17 @@ const XRayScannerModal = ({ isOpen, onClose }: XRayScannerModalProps) => {
             });
 
             const data: AnalysisResult = await response.json();
+
+            if (!response.ok) {
+                // Server returned an error (e.g., 500)
+                setResult({
+                    success: false,
+                    error: data.error || data.details || `خطأ في الخادم (${response.status})`
+                });
+                setScanState('error');
+                return;
+            }
+
             setResult(data);
 
             if (data.success && data.analysis) {
