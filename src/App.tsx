@@ -10,6 +10,8 @@ import Diagnosis from './pages/Diagnosis';
 import LabDiagnosis from './pages/LabDiagnosis';
 import Awareness from './pages/Awareness';
 import About from './pages/About';
+import LearnMore from './pages/LearnMore';
+import MedicalScanners from './pages/MedicalScanners';
 import Contact from './pages/Contact';
 import DiseaseDetails from './pages/DiseaseDetails';
 import TreatmentDetails from './pages/TreatmentDetails';
@@ -53,6 +55,8 @@ function App() {
               <Route path="directory" element={<MedicalDirectory />} />
               <Route path="directory/:id" element={<DirectoryItemDetails />} />
               <Route path="about" element={<About />} />
+              <Route path="learn-more" element={<LearnMore />} />
+              <Route path="scanners" element={<MedicalScanners />} />
               <Route path="contact" element={<Contact />} />
               <Route path="profile" element={<Profile />} />
             </Route>

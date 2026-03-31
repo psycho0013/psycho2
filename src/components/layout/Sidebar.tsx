@@ -16,7 +16,8 @@ import {
     LogOut,
     Settings as SettingsIcon,
     ChevronDown,
-    Smile
+    Smile,
+    ScanFace
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminLoginModal from '../auth/AdminLoginModal';
@@ -27,12 +28,14 @@ const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
         authService.getCurrentUser().then(setUser);
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: { subscription } } = (supabase.auth as any).onAuthStateChange((_event: string, session: any) => {
             setUser(session?.user ?? null);
         });
 
@@ -59,6 +62,7 @@ const Sidebar = () => {
         { path: '/diagnosis', label: 'التشخيص الذكي', icon: Activity },
         { path: '/lab-diagnosis', label: 'المختبر الذكي', icon: FlaskConical },
         { path: '/dental-diagnosis', label: 'تشخيص الأسنان', icon: Smile },
+        { path: '/scanners', label: 'أدوات الفحص', icon: ScanFace },
         { path: '/awareness', label: 'توعية طبية', icon: BookOpen },
         { path: '/directory', label: 'دليل طبي', icon: Building2 },
         { path: '/contact', label: 'اتصل بنا', icon: Phone },
