@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ScanFace, Pill, ArrowRight, Sparkles, Activity } from 'lucide-react';
+import { ScanFace, Pill, ArrowRight, Sparkles } from 'lucide-react';
 import MedicineScannerModal from '@/components/MedicineScannerModal';
+import XRayScannerModal from '@/components/XRayScannerModal';
 
 const MedicalScanners = () => {
     const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [isXRayOpen, setIsXRayOpen] = useState(false);
 
     // Variants for animation
     const containerVariants = {
@@ -46,7 +48,7 @@ const MedicalScanners = () => {
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-emerald-500"> الذكي</span>
                         </h1>
                         <p className="text-lg text-slate-500 leading-relaxed">
-                            استخدم أحدث ما توصلت إليه تكنولوجيا الذكاء الاصطناعي لفحص الأدوية وقريباً لتحليل صور الأشعة، للحصول على نتائج طبية سريعة ودقيقة.
+                            استخدم أحدث ما توصلت إليه تكنولوجيا الذكاء الاصطناعي لفحص الأدوية وتحليل صور الأشعة، للحصول على نتائج طبية سريعة ودقيقة.
                         </p>
                     </motion.div>
                 </div>
@@ -86,37 +88,29 @@ const MedicalScanners = () => {
                         </div>
                     </motion.div>
 
-                    {/* X-Ray Analyzer Card (Coming Soon) */}
+                    {/* X-Ray Analyzer Card — NOW ACTIVE! */}
                     <motion.div 
                         variants={cardVariants}
-                        className="group relative"
+                        whileHover={{ y: -8, scale: 1.02 }}
+                        className="group cursor-pointer relative"
+                        onClick={() => setIsXRayOpen(true)}
                     >
-                        {/* Dimmer overlay for 'Coming Soon' look */}
-                        <div className="absolute inset-0 bg-slate-50/40 backdrop-blur-[2px] rounded-3xl z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div className="bg-slate-900/80 text-white font-bold px-6 py-3 rounded-full backdrop-blur-md flex items-center gap-2">
-                                <Activity size={18} /> سيتم تفعليه قريباً
-                            </div>
-                        </div>
+                        {/* Glow Effect */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-3xl blur-xl opacity-0 group-hover:opacity-40 transition duration-500" />
 
-                        <div className="relative h-full bg-white/60 backdrop-blur-md border border-slate-100 p-8 rounded-3xl shadow-lg flex flex-col items-center text-center overflow-hidden grayscale-[30%] opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500">
-                            
-                            {/* "Coming soon" Badge */}
-                            <div className="absolute top-6 left-6 px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full border border-amber-200">
-                                قريباً
-                            </div>
-
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center mb-6 shadow-inner">
+                        <div className="relative h-full bg-white/80 backdrop-blur-xl border border-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 flex flex-col items-center text-center overflow-hidden">
+                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-500">
                                 <ScanFace size={40} className="text-indigo-500" />
                             </div>
                             
                             <h2 className="text-2xl font-bold text-slate-800 mb-4">محلل صور الأشعة</h2>
                             <p className="text-slate-500 mb-8 leading-relaxed">
-                                ارفع صور الأشعة السينية الخاصة بك ليتم مطابقتها مع ملايين الحالات للتعرف على الكسور والتشوهات الهيكلية مبكراً.
+                                ارفع صور الأشعة السينية أو المقطعية ليتم تحليلها بالذكاء الاصطناعي والتعرف على الملاحظات الطبية المحتملة.
                             </p>
                             
                             <div className="mt-auto">
-                                <span className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 text-slate-400 font-bold rounded-xl border border-slate-200 cursor-not-allowed">
-                                    ترقبوا إطلاق الميزة
+                                <span className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-all">
+                                    ابدأ التحليل الآن <ArrowRight size={18} />
                                 </span>
                             </div>
                         </div>
@@ -127,6 +121,7 @@ const MedicalScanners = () => {
 
             {/* Modal Components */}
             <MedicineScannerModal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
+            <XRayScannerModal isOpen={isXRayOpen} onClose={() => setIsXRayOpen(false)} />
         </div>
     );
 };
