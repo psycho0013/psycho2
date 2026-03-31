@@ -1,0 +1,35 @@
+# Supabase Keep-Alive
+# يمنع Supabase من إيقاف المشروع في الخطة المجانية
+# يشتغل تلقائياً كل 5 أيام + يمكن تشغيله يدوياً
+
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # يشتغل كل 5 أيام الساعة 3 صباحاً UTC
+    - cron: '0 3 */5 * *'
+  workflow_dispatch: # يسمح بالتشغيل اليدوي من GitHub
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Database
+        run: |
+          echo "🔄 Pinging Supabase to prevent project pausing..."
+          
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/app_config?select=key&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "✅ Supabase is alive! Response code: $RESPONSE"
+          else
+            echo "❌ Supabase ping failed! Response code: $RESPONSE"
+            exit 1
+          fi
+
+      - name: Log Timestamp
+        run: |
+          echo "⏰ Keep-alive ping completed at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
