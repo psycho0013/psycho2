@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Activity, FlaskConical, Smile, ScanFace, ArrowLeft, ShieldCheck, Sparkles } from 'lucide-react';
+import { Activity, FlaskConical, Smile, ScanFace, Pill, ArrowLeft, ShieldCheck, Sparkles } from 'lucide-react';
 
 const ServicesHub = () => {
     const services = [
@@ -32,9 +32,18 @@ const ServicesHub = () => {
             bgGlow: 'bg-amber-400/20'
         },
         {
+            id: 'medicines',
+            title: 'ماسح الأدوية',
+            description: 'صوّر الدواء أو ارفع صورته ليتعرف عليه الذكاء الاصطناعي ويعطيك تفاصيله والجرعات الآمنة.',
+            icon: Pill,
+            path: '/scanners',
+            color: 'from-rose-400 to-red-500',
+            bgGlow: 'bg-rose-400/20'
+        },
+        {
             id: 'scanners',
-            title: 'أدوات الفحص والصور',
-            description: 'تحليل ذكي لصور الأشعة وتحديد الأدوية الذكي من خلال كاميرا الهاتف.',
+            title: 'محلل صور الأشعة',
+            description: 'تحليل ذكي لصور الأشعة السينية والمقطعية والرنين المغناطيسي بالذكاء الاصطناعي.',
             icon: ScanFace,
             path: '/scanners',
             color: 'from-purple-500 to-pink-500',

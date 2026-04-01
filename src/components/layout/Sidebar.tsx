@@ -12,7 +12,8 @@ import {
     LogIn,
     LogOut,
     Settings as SettingsIcon,
-    ChevronDown
+    ChevronDown,
+    UserCircle2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminLoginModal from '../auth/AdminLoginModal';
@@ -63,6 +64,7 @@ const Sidebar = () => {
             isSubMenu: true,
             children: [
                 { path: '/about', label: 'عن المنصة', icon: Info },
+                { path: '/auth', label: 'تسجيل الدخول', icon: UserCircle2 },
                 { isAction: true, action: () => setIsLoginModalOpen(true), label: 'دخول المشرفين', icon: LogIn }
             ]
         },

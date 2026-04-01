@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Activity, BookOpen, Building2, Menu, X, Info, Phone, LogIn, ChevronRight } from 'lucide-react';
+import { Home, Activity, BookOpen, Building2, Menu, X, Info, Phone, LogIn, ChevronRight, UserCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminLoginModal from '../auth/AdminLoginModal';
 
@@ -20,6 +20,13 @@ const BottomNav = () => {
     const moreItems = [
         { path: '/about', label: 'عن المنصة', icon: Info },
         { path: '/contact', label: 'اتصل بنا', icon: Phone },
+        { 
+            path: '/auth', 
+            label: 'تسجيل الدخول', 
+            icon: UserCircle2,
+            color: 'text-cyan-600',
+            bg: 'bg-cyan-50'
+        },
         { 
             isAction: true, 
             action: () => {
@@ -143,15 +150,15 @@ const BottomNav = () => {
                                                     if (item.path) navigate(item.path);
                                                     setIsMoreOpen(false);
                                                 }}
-                                                className="w-full flex items-center justify-between p-4 bg-white border border-slate-100 hover:bg-slate-50 rounded-2xl transition-colors active:scale-[0.98]"
+                                                className={cn("w-full flex items-center justify-between p-4 rounded-2xl transition-colors border border-slate-100 active:scale-[0.98]", item.bg || "bg-white hover:bg-slate-50")}
                                             >
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600">
+                                                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", item.bg ? "bg-white" : "bg-slate-100", item.color || "text-slate-600")}>
                                                         <Icon size={20} />
                                                     </div>
-                                                    <span className="font-bold text-slate-700 text-base">{item.label}</span>
+                                                    <span className={cn("font-bold text-base", item.color || "text-slate-700")}>{item.label}</span>
                                                 </div>
-                                                <ChevronRight size={20} className="text-slate-400" />
+                                                <ChevronRight size={20} className={item.color || "text-slate-400"} />
                                             </button>
                                         );
                                     })}
