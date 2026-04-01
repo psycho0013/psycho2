@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import Footer from './Footer';
 import ScrollProgress from '../ui/ScrollProgress';
 import { AnimatePresence, motion } from 'framer-motion';
+import BottomNav from './BottomNav';
 
 const MainLayout = () => {
     const location = useLocation();
@@ -25,6 +26,7 @@ const MainLayout = () => {
                     </motion.div>
                 </AnimatePresence>
                 <Footer />
+                <BottomNav />
             </main>
         </div>
     );

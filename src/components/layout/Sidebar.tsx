@@ -6,18 +6,13 @@ import {
     Activity,
     BookOpen,
     Info,
-    Phone,
-    Menu,
     X,
     ChevronRight,
     Building2,
     LogIn,
-    FlaskConical,
     LogOut,
     Settings as SettingsIcon,
-    ChevronDown,
-    Smile,
-    ScanFace
+    ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminLoginModal from '../auth/AdminLoginModal';
@@ -59,13 +54,9 @@ const Sidebar = () => {
 
     const navItems = [
         { path: '/', label: 'الرئيسية', icon: Home },
-        { path: '/diagnosis', label: 'التشخيص الذكي', icon: Activity },
-        { path: '/lab-diagnosis', label: 'المختبر الذكي', icon: FlaskConical },
-        { path: '/dental-diagnosis', label: 'تشخيص الأسنان', icon: Smile },
-        { path: '/scanners', label: 'أدوات الفحص', icon: ScanFace },
+        { path: '/services', label: 'أدوات التشخيص', icon: Activity },
         { path: '/awareness', label: 'توعية طبية', icon: BookOpen },
         { path: '/directory', label: 'دليل طبي', icon: Building2 },
-        { path: '/contact', label: 'اتصل بنا', icon: Phone },
         {
             label: 'الإعدادات',
             icon: SettingsIcon,
@@ -79,21 +70,13 @@ const Sidebar = () => {
 
     return (
         <>
-            {/* Mobile Menu Button */}
-            <button
-                onClick={toggleSidebar}
-                className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-white rounded-lg shadow-md text-slate-600"
-            >
-                {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
 
             {/* Sidebar Container */}
             <motion.aside
                 initial={false}
-                animate={{
-                    width: isOpen ? 280 : 90, // Slightly wider collapsed state for the bubbles
-                    transition: { duration: 0.3, type: "spring", stiffness: 100, damping: 20 }
-                }}
+                animate={{ width: isOpen ? 280 : 90 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                style={{ willChange: 'width' }}
                 className={cn(
                     "fixed top-4 right-4 bottom-4 bg-white/90 backdrop-blur-xl z-40 hidden lg:flex flex-col shadow-2xl shadow-slate-200/50 rounded-[2.5rem]", // Floating look with rounded corners
                     !isOpen && "items-center"
