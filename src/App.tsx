@@ -47,6 +47,8 @@ function App() {
         await OneSignal.init({
           appId: import.meta.env.VITE_ONESIGNAL_APP_ID || "PLACEHOLDER_APP_ID",
           allowLocalhostAsSecureOrigin: true,
+          serviceWorkerParam: { scope: '/' },
+          serviceWorkerPath: '/OneSignalSDKWorker.js',
         });
       } catch (error) {
         console.error("OneSignal Setup Error:", error);
