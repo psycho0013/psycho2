@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download, Share, Plus, Bell, Smartphone, CheckCircle2 } from 'lucide-react';
 
+import OneSignal from 'react-onesignal';
+
 /**
  * ═══════════════════════════════════════════════════════════════════════════
  * واجهة تنصيب التطبيق — PWA Install Prompt
@@ -98,8 +100,9 @@ const PWAInstallPrompt = () => {
 
     const handleEnableNotifications = async () => {
         try {
-            const OneSignal = (await import('react-onesignal')).default;
-
+            // ═══════════════════════════════════════════
+            // تم إزالة الاستيراد الديناميكي لأن Apple Safari صارم
+            // ويمنع أي طلبات للإشعارات إذا ما كانت مرتبطة بضغطة زر مباشرة بدون تأخير
             // ═══════════════════════════════════════════
             // الحل النهائي: نستخدم OneSignal.Notifications.requestPermission()
             // لكل الأجهزة (iOS + Android) — هذي الطريقة الوحيدة اللي
