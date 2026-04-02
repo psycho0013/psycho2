@@ -98,49 +98,44 @@ const PWAInstallPrompt = () => {
 
     const handleEnableNotifications = async () => {
         try {
-            let granted = false;
             const OneSignal = (await import('react-onesignal')).default;
 
-            if (isIOS) {
-                // iOS: أولاً نطلب صلاحية النظام المباشرة (لازم من ضغطة زر)
-                const permission = await Notification.requestPermission();
-                granted = permission === 'granted';
-                
-                // بعد موافقة النظام — نسجّل الجهاز في OneSignal
-                if (granted) {
-                    try {
-                        await OneSignal.User.PushSubscription.optIn();
-                    } catch (e) {
-                        console.log('OneSignal optIn (iOS):', e);
-                    }
-                }
-            } else {
-                // Android / Chrome — نستخدم OneSignal مباشرة
-                try {
-                    await OneSignal.Slidedown.promptPush();
-                    granted = Notification.permission === 'granted';
-                    if (granted) {
-                        await OneSignal.User.PushSubscription.optIn();
-                    }
-                } catch {
-                    // Fallback للطريقة المباشرة
-                    const permission = await Notification.requestPermission();
-                    granted = permission === 'granted';
-                    if (granted) {
-                        try { await OneSignal.User.PushSubscription.optIn(); } catch {}
-                    }
-                }
-            }
+            // ═══════════════════════════════════════════
+            // الحل النهائي: نستخدم OneSignal.Notifications.requestPermission()
+            // لكل الأجهزة (iOS + Android) — هذي الطريقة الوحيدة اللي
+            // تطلب الصلاحية وتسجّل الجهاز بخوادم OneSignal بنفس الوقت
+            // ═══════════════════════════════════════════
+            
+            // طلب الصلاحية عن طريق OneSignal (يشتغل على iOS و Android)
+            const granted = await OneSignal.Notifications.requestPermission();
 
             if (granted) {
+                // تسجيل الجهاز بالإشعارات
+                try {
+                    await OneSignal.User.PushSubscription.optIn();
+                } catch (e) {
+                    console.log('OneSignal optIn:', e);
+                }
                 setStep('notif_done');
                 setTimeout(() => setShowPrompt(false), 2500);
             } else {
+                // رفض — نسكّر النافذة بس ترجع المرة الجاية
                 setShowPrompt(false);
             }
         } catch (err) {
             console.error('Notification permission error:', err);
-            setShowPrompt(false);
+            // Fallback: نجرب الطريقة المباشرة إذا OneSignal فشل كلياً
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    setStep('notif_done');
+                    setTimeout(() => setShowPrompt(false), 2500);
+                } else {
+                    setShowPrompt(false);
+                }
+            } catch {
+                setShowPrompt(false);
+            }
         }
     };
 
