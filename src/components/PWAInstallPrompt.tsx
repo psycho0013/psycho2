@@ -6,6 +6,8 @@ import { X, Download, Share, Plus, Bell, Smartphone, CheckCircle2 } from 'lucide
  * ═══════════════════════════════════════════════════════════════════════════
  * واجهة تنصيب التطبيق — PWA Install Prompt
  * تظهر للمستخدم عند فتح الموقع من الموبايل لتعليمه كيف ينصّب التطبيق
+ * في وضع التطبيق (standalone): تطلع نافذة تفعيل الإشعارات كل مرة
+ * لحد ما المستخدم يوافق
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
@@ -18,6 +20,7 @@ const PWAInstallPrompt = () => {
     const [showPrompt, setShowPrompt] = useState(false);
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [isIOS, setIsIOS] = useState(false);
+    const [isStandalone, setIsStandalone] = useState(false);
     const [step, setStep] = useState<'main' | 'ios_guide' | 'notif_prompt' | 'notif_done'>('main');
 
     useEffect(() => {
@@ -27,21 +30,29 @@ const PWAInstallPrompt = () => {
         const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry/i.test(navigator.userAgent);
         if (!isMobile) return;
 
-        const dismissed = localStorage.getItem('pwa-prompt-dismissed');
-        const isDismissedRecently = dismissed && (Date.now() - parseInt(dismissed) < 3 * 24 * 60 * 60 * 1000);
+        const standalone = window.matchMedia('(display-mode: standalone)').matches;
+        setIsStandalone(standalone);
 
-        // Check if already running as installed App (Standalone mode)
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            
-            // If inside the app, and notifications aren't enabled, and not dismissed recently
-            if ('Notification' in window && Notification.permission !== 'granted' && !isDismissedRecently) {
-                setStep('notif_prompt');
-                setTimeout(() => setShowPrompt(true), 2500);
+        // ══════════════════════════════════════════════════════
+        // وضع التطبيق المثبت (Standalone) — دائماً نعرض طلب الإشعارات
+        // لحد ما المستخدم يوافق، بدون أي cooldown
+        // ══════════════════════════════════════════════════════
+        if (standalone) {
+            // إذا الإشعارات مفعلة مسبقاً = ما نعرض شيء
+            if ('Notification' in window && Notification.permission === 'granted') {
+                return; // ✅ مفعلة — ما نعرض النافذة
             }
+            // غير مفعلة = نعرض نافذة الإشعارات كل مرة
+            setStep('notif_prompt');
+            setTimeout(() => setShowPrompt(true), 1500);
             return;
         }
 
-        // If not installed, but dismissed recently, don't show the install prompt
+        // ══════════════════════════════════════════════════════
+        // وضع المتصفح العادي — نعرض نافذة التنصيب مع cooldown 3 أيام
+        // ══════════════════════════════════════════════════════
+        const dismissed = localStorage.getItem('pwa-install-dismissed');
+        const isDismissedRecently = dismissed && (Date.now() - parseInt(dismissed) < 3 * 24 * 60 * 60 * 1000);
         if (isDismissedRecently) return;
 
         // Android: Listen for beforeinstallprompt
@@ -65,7 +76,7 @@ const PWAInstallPrompt = () => {
             await deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
-                // Instead of hiding immediately, ask for notifications
+                // بعد التنصيب — نطلب الإشعارات
                 if ('Notification' in window && Notification.permission !== 'granted') {
                     setStep('notif_prompt');
                 } else {
@@ -78,25 +89,52 @@ const PWAInstallPrompt = () => {
 
     const handleDismiss = () => {
         setShowPrompt(false);
-        localStorage.setItem('pwa-prompt-dismissed', Date.now().toString());
+        // الـ cooldown بس لنافذة التنصيب بالمتصفح، مو للإشعارات
+        if (!isStandalone) {
+            localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+        }
+        // في وضع Standalone ما نخزن شي — حتى تطلع المرة الجاية
     };
 
     const handleEnableNotifications = async () => {
         try {
-            // Import OneSignal strictly dynamically to avoid SSR issues if any, or use the global React OneSignal
-            const OneSignal = (await import('react-onesignal')).default;
-            await OneSignal.Slidedown.promptPush();
+            // ═══════════════════════════════════════════
+            // على iOS: نستخدم Notification.requestPermission() المباشر
+            // لأن OneSignal Slidedown ما يشتغل على Safari/iOS PWA
+            // على Android: نجرب OneSignal أولاً ثم نرجع للطريقة المباشرة
+            // ═══════════════════════════════════════════
             
-            // Check if permission was granted via native or OneSignal
-            if (Notification.permission === 'granted' || OneSignal.Notifications.permission) {
-                setStep('notif_done');
-                setTimeout(() => handleDismiss(), 2000);
+            let granted = false;
+
+            if (isIOS) {
+                // iOS يحتاج الطريقة المباشرة فقط — من ضغطة زر
+                const permission = await Notification.requestPermission();
+                granted = permission === 'granted';
             } else {
-                // If they dismissed the OneSignal prompt, treat it as a dismiss
-                handleDismiss();
+                // Android / Chrome — نجرب OneSignal أولاً
+                try {
+                    const OneSignal = (await import('react-onesignal')).default;
+                    await OneSignal.Slidedown.promptPush();
+                    granted = Notification.permission === 'granted';
+                } catch {
+                    // Fallback للطريقة المباشرة
+                    const permission = await Notification.requestPermission();
+                    granted = permission === 'granted';
+                }
+            }
+
+            if (granted) {
+                // ✅ تم التفعيل — نعطيه رسالة نجاح ونسكّر
+                setStep('notif_done');
+                setTimeout(() => setShowPrompt(false), 2500);
+            }
+            // إذا رفض — النافذة تنسكر بس ترجع المرة الجاية يفتح التطبيق
+            else {
+                setShowPrompt(false);
             }
         } catch (err) {
             console.error('Notification permission error:', err);
+            setShowPrompt(false);
         }
     };
 
@@ -138,7 +176,7 @@ const PWAInstallPrompt = () => {
                                 <X size={18} />
                             </button>
 
-                            {/* === MAIN STEP === */}
+                            {/* === MAIN STEP (Install Prompt) === */}
                             {step === 'main' && (
                                 <div className="space-y-5">
                                     {/* App Icon & Name */}
@@ -171,7 +209,6 @@ const PWAInstallPrompt = () => {
 
                                     {/* Action Buttons */}
                                     {isIOS ? (
-                                        // iOS Guide
                                         <button
                                             onClick={() => setStep('ios_guide')}
                                             className="w-full py-4 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-cyan-500/30 active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
@@ -180,24 +217,12 @@ const PWAInstallPrompt = () => {
                                             كيف أنصّب التطبيق؟
                                         </button>
                                     ) : (
-                                        // Android Install
                                         <button
                                             onClick={handleInstall}
                                             className="w-full py-4 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-cyan-500/30 active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
                                         >
                                             <Download size={20} />
                                             تنصيب التطبيق الآن
-                                        </button>
-                                    )}
-
-                                    {/* Enable Notifications */}
-                                    {'Notification' in window && Notification.permission !== 'granted' && (
-                                        <button
-                                            onClick={handleEnableNotifications}
-                                            className="w-full py-3 bg-amber-50 text-amber-700 font-bold rounded-2xl border border-amber-200 active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
-                                        >
-                                            <Bell size={18} />
-                                            تفعيل الإشعارات
                                         </button>
                                     )}
 
@@ -259,15 +284,15 @@ const PWAInstallPrompt = () => {
                                 </div>
                             )}
 
-                            {/* === NOTIFICATION PROMPT AFTER INSTALL === */}
+                            {/* === NOTIFICATION PROMPT === */}
                             {step === 'notif_prompt' && (
                                 <div className="text-center py-4 space-y-5">
                                     <div className="w-20 h-20 bg-cyan-50 rounded-full flex items-center justify-center mx-auto mb-2">
                                         <Bell size={40} className="text-cyan-500" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-slate-800">خطوة أخيرة! 🔔</h3>
+                                    <h3 className="text-xl font-bold text-slate-800">فعّل الإشعارات 🔔</h3>
                                     <p className="text-sm text-slate-500 mb-4 text-center">
-                                        لضمان حصولك على أفضل تجربة، قم بتفعيل الإشعارات لتصلك تنبيهات الأدوية والأخبار الصحية.
+                                        فعّل الإشعارات حتى تصلك تنبيهات الأدوية والأخبار الصحية المهمة مباشرة على جهازك.
                                     </p>
                                     
                                     <button
@@ -280,7 +305,7 @@ const PWAInstallPrompt = () => {
                                         onClick={handleDismiss}
                                         className="w-full py-2 text-slate-400 text-sm font-medium"
                                     >
-                                        إلغاء
+                                        لاحقاً
                                     </button>
                                 </div>
                             )}
