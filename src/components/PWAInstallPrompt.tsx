@@ -19,7 +19,7 @@ const PWAInstallPrompt = () => {
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [isIOS, setIsIOS] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
-    const [step, setStep] = useState<'main' | 'ios_guide' | 'notif_done'>('main');
+    const [step, setStep] = useState<'main' | 'ios_guide' | 'notif_prompt' | 'notif_done'>('main');
 
     useEffect(() => {
         // Check if already installed
@@ -65,8 +65,13 @@ const PWAInstallPrompt = () => {
             await deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
-                setShowPrompt(false);
                 setIsInstalled(true);
+                // Instead of hiding immediately, ask for notifications
+                if ('Notification' in window && Notification.permission !== 'granted') {
+                    setStep('notif_prompt');
+                } else {
+                    setShowPrompt(false);
+                }
             }
             setDeferredPrompt(null);
         }
@@ -79,8 +84,12 @@ const PWAInstallPrompt = () => {
 
     const handleEnableNotifications = async () => {
         try {
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
+            // Import OneSignal strictly dynamically to avoid SSR issues if any, or use the global React OneSignal
+            const OneSignal = (await import('react-onesignal')).default;
+            await OneSignal.Slidedown.promptPush();
+            
+            // Check if permission was granted via native or OneSignal
+            if (Notification.permission === 'granted' || OneSignal.Notifications.permission) {
                 setStep('notif_done');
                 setTimeout(() => handleDismiss(), 2000);
             }
@@ -244,6 +253,32 @@ const PWAInstallPrompt = () => {
                                         className="w-full py-3 bg-slate-100 text-slate-600 font-medium rounded-2xl"
                                     >
                                         رجوع
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* === NOTIFICATION PROMPT AFTER INSTALL === */}
+                            {step === 'notif_prompt' && (
+                                <div className="text-center py-4 space-y-5">
+                                    <div className="w-20 h-20 bg-cyan-50 rounded-full flex items-center justify-center mx-auto mb-2">
+                                        <Bell size={40} className="text-cyan-500" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-800">خطوة أخيرة! 🔔</h3>
+                                    <p className="text-sm text-slate-500 mb-4 text-center">
+                                        لضمان حصولك على أفضل تجربة، قم بتفعيل الإشعارات لتصلك تنبيهات الأدوية والأخبار الصحية.
+                                    </p>
+                                    
+                                    <button
+                                        onClick={handleEnableNotifications}
+                                        className="w-full py-4 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-cyan-500/30 active:scale-[0.98] transition-transform"
+                                    >
+                                        تفعيل الإشعارات
+                                    </button>
+                                    <button
+                                        onClick={handleDismiss}
+                                        className="w-full py-2 text-slate-400 text-sm font-medium"
+                                    >
+                                        إلغاء
                                     </button>
                                 </div>
                             )}

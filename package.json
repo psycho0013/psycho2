@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.0",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/supabase-js": "^2.86.0",
     "class-variance-authority": "^0.7.1",
@@ -17,10 +18,10 @@
     "framer-motion": "^12.23.24",
     "gsap": "^3.13.0",
     "lucide-react": "^0.554.0",
-    "@google/generative-ai": "^0.24.0",
     "openai": "^6.9.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-onesignal": "^3.5.1",
     "react-router-dom": "^7.9.6",
     "recharts": "^3.6.0",
     "tailwind-merge": "^3.4.0"

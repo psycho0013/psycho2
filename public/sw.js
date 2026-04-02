@@ -1,3 +1,5 @@
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+
 // Service Worker for SmartTashkhees PWA
 const CACHE_NAME = 'smarttashkhees-v1';
 
@@ -66,40 +68,4 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
-// Push notification event
-self.addEventListener('push', (event) => {
-    let data = { title: 'SmartTashkhees', body: 'لديك إشعار جديد', icon: '/po.png' };
-    
-    if (event.data) {
-        try {
-            data = { ...data, ...event.data.json() };
-        } catch {
-            data.body = event.data.text();
-        }
-    }
-
-    event.waitUntil(
-        self.registration.showNotification(data.title, {
-            body: data.body,
-            icon: data.icon || '/po.png',
-            badge: '/po.png',
-            dir: 'rtl',
-            lang: 'ar',
-            vibrate: [200, 100, 200],
-            tag: 'smarttashkhees-notification'
-        })
-    );
-});
-
-// Notification click event
-self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
-    event.waitUntil(
-        self.clients.matchAll({ type: 'window' }).then((clientList) => {
-            if (clientList.length > 0) {
-                return clientList[0].focus();
-            }
-            return self.clients.openWindow('/');
-        })
-    );
-});
+// --- Custom push listeners removed; OneSignal handles push notifications ---

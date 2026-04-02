@@ -36,8 +36,25 @@ import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import DentalDiagnosis from './pages/DentalDiagnosis';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import OneSignal from 'react-onesignal';
+import { useEffect } from 'react';
 
 function App() {
+  useEffect(() => {
+    // Initialize OneSignal
+    const initOneSignal = async () => {
+      try {
+        await OneSignal.init({
+          appId: import.meta.env.VITE_ONESIGNAL_APP_ID || "PLACEHOLDER_APP_ID",
+          allowLocalhostAsSecureOrigin: true,
+        });
+      } catch (error) {
+        console.error("OneSignal Setup Error:", error);
+      }
+    };
+    initOneSignal();
+  }, []);
+
   return (
     <BrowserRouter>
       <SecurityProvider>
