@@ -98,38 +98,44 @@ const PWAInstallPrompt = () => {
 
     const handleEnableNotifications = async () => {
         try {
-            // ═══════════════════════════════════════════
-            // على iOS: نستخدم Notification.requestPermission() المباشر
-            // لأن OneSignal Slidedown ما يشتغل على Safari/iOS PWA
-            // على Android: نجرب OneSignal أولاً ثم نرجع للطريقة المباشرة
-            // ═══════════════════════════════════════════
-            
             let granted = false;
+            const OneSignal = (await import('react-onesignal')).default;
 
             if (isIOS) {
-                // iOS يحتاج الطريقة المباشرة فقط — من ضغطة زر
+                // iOS: أولاً نطلب صلاحية النظام المباشرة (لازم من ضغطة زر)
                 const permission = await Notification.requestPermission();
                 granted = permission === 'granted';
+                
+                // بعد موافقة النظام — نسجّل الجهاز في OneSignal
+                if (granted) {
+                    try {
+                        await OneSignal.User.PushSubscription.optIn();
+                    } catch (e) {
+                        console.log('OneSignal optIn (iOS):', e);
+                    }
+                }
             } else {
-                // Android / Chrome — نجرب OneSignal أولاً
+                // Android / Chrome — نستخدم OneSignal مباشرة
                 try {
-                    const OneSignal = (await import('react-onesignal')).default;
                     await OneSignal.Slidedown.promptPush();
                     granted = Notification.permission === 'granted';
+                    if (granted) {
+                        await OneSignal.User.PushSubscription.optIn();
+                    }
                 } catch {
                     // Fallback للطريقة المباشرة
                     const permission = await Notification.requestPermission();
                     granted = permission === 'granted';
+                    if (granted) {
+                        try { await OneSignal.User.PushSubscription.optIn(); } catch {}
+                    }
                 }
             }
 
             if (granted) {
-                // ✅ تم التفعيل — نعطيه رسالة نجاح ونسكّر
                 setStep('notif_done');
                 setTimeout(() => setShowPrompt(false), 2500);
-            }
-            // إذا رفض — النافذة تنسكر بس ترجع المرة الجاية يفتح التطبيق
-            else {
+            } else {
                 setShowPrompt(false);
             }
         } catch (err) {
