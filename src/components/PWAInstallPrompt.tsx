@@ -18,36 +18,36 @@ const PWAInstallPrompt = () => {
     const [showPrompt, setShowPrompt] = useState(false);
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [isIOS, setIsIOS] = useState(false);
-    const [isInstalled, setIsInstalled] = useState(false);
     const [step, setStep] = useState<'main' | 'ios_guide' | 'notif_prompt' | 'notif_done'>('main');
 
     useEffect(() => {
-        // Check if already installed
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            setIsInstalled(true);
-            return;
-        }
-
-        // Check if dismissed recently (don't show for 3 days)
-        const dismissed = localStorage.getItem('pwa-prompt-dismissed');
-        if (dismissed) {
-            const dismissedTime = parseInt(dismissed);
-            if (Date.now() - dismissedTime < 3 * 24 * 60 * 60 * 1000) return;
-        }
-
-        // Detect iOS
         const isIOSDevice = /iPhone|iPad|iPod/.test(navigator.userAgent);
         setIsIOS(isIOSDevice);
 
-        // Only show on mobile
         const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry/i.test(navigator.userAgent);
         if (!isMobile) return;
+
+        const dismissed = localStorage.getItem('pwa-prompt-dismissed');
+        const isDismissedRecently = dismissed && (Date.now() - parseInt(dismissed) < 3 * 24 * 60 * 60 * 1000);
+
+        // Check if already running as installed App (Standalone mode)
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            
+            // If inside the app, and notifications aren't enabled, and not dismissed recently
+            if ('Notification' in window && Notification.permission !== 'granted' && !isDismissedRecently) {
+                setStep('notif_prompt');
+                setTimeout(() => setShowPrompt(true), 2500);
+            }
+            return;
+        }
+
+        // If not installed, but dismissed recently, don't show the install prompt
+        if (isDismissedRecently) return;
 
         // Android: Listen for beforeinstallprompt
         const handler = (e: Event) => {
             e.preventDefault();
             setDeferredPrompt(e as BeforeInstallPromptEvent);
-            // Show after a short delay for better UX
             setTimeout(() => setShowPrompt(true), 2000);
         };
         window.addEventListener('beforeinstallprompt', handler);
@@ -65,7 +65,6 @@ const PWAInstallPrompt = () => {
             await deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
-                setIsInstalled(true);
                 // Instead of hiding immediately, ask for notifications
                 if ('Notification' in window && Notification.permission !== 'granted') {
                     setStep('notif_prompt');
@@ -92,13 +91,16 @@ const PWAInstallPrompt = () => {
             if (Notification.permission === 'granted' || OneSignal.Notifications.permission) {
                 setStep('notif_done');
                 setTimeout(() => handleDismiss(), 2000);
+            } else {
+                // If they dismissed the OneSignal prompt, treat it as a dismiss
+                handleDismiss();
             }
         } catch (err) {
             console.error('Notification permission error:', err);
         }
     };
 
-    if (isInstalled || !showPrompt) return null;
+    if (!showPrompt) return null;
 
     return (
         <AnimatePresence>
