@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ScanFace, Pill, ArrowRight, Sparkles } from 'lucide-react';
 import MedicineScannerModal from '@/components/MedicineScannerModal';
 import XRayScannerModal from '@/components/XRayScannerModal';
+import MobileBackButton from '@/components/ui/MobileBackButton';
 
 const MedicalScanners = () => {
     const [isScannerOpen, setIsScannerOpen] = useState(false);
@@ -31,6 +32,7 @@ const MedicalScanners = () => {
             </div>
 
             <div className="relative z-10 container mx-auto px-4 py-16">
+                <MobileBackButton />
                 
                 {/* Header Section */}
                 <div className="text-center max-w-3xl mx-auto mb-20">

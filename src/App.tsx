@@ -35,6 +35,7 @@ import DentistsManager from './pages/admin/DentistsManager';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import DentalDiagnosis from './pages/DentalDiagnosis';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
         <ToastProvider>
           <ScrollToTop />
           <SEOHead />
+          <PWAInstallPrompt />
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<MainLayout />}>

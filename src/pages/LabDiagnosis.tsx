@@ -6,6 +6,7 @@ import LabSelection from '@/components/lab/LabSelection';
 import LabTestForm from '@/components/lab/LabTestForm';
 import LabPatientInfo from '@/components/lab/LabPatientInfo';
 import LabResult from '@/components/lab/LabResult';
+import MobileBackButton from '@/components/ui/MobileBackButton';
 
 const LabDiagnosis = () => {
     const [step, setStep] = useState(1);
@@ -71,6 +72,7 @@ const LabDiagnosis = () => {
     return (
         <div className="min-h-screen bg-slate-50 p-6 lg:p-12" ref={containerRef}>
             <div className="max-w-4xl mx-auto">
+                <MobileBackButton />
                 <div className="mb-8 text-center lg:text-right">
                     <h1 className="text-3xl font-bold text-slate-900">المختبر الذكي</h1>
                     <p className="text-slate-500 mt-2">تحليل وتفسير نتائج التحاليل الطبية بدقة عالية</p>

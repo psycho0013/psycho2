@@ -12,7 +12,7 @@ const MainLayout = () => {
         <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden">
             <ScrollProgress />
             <Sidebar />
-            <main className="min-h-screen w-full flex flex-col relative">
+            <main className="min-h-screen w-full flex flex-col relative pb-20 lg:pb-0">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}

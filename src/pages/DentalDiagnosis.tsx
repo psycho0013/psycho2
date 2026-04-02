@@ -20,6 +20,7 @@ import DentalStepInfo from '@/components/dental/DentalStepInfo';
 import DentalStepSymptoms from '@/components/dental/DentalStepSymptoms';
 import DentalFollowUp from '@/components/dental/DentalFollowUp';
 import DentalResult from '@/components/dental/DentalResult';
+import MobileBackButton from '@/components/ui/MobileBackButton';
 
 // الحالة الابتدائية
 const initialState: DentalDiagnosisState = {
@@ -157,6 +158,7 @@ export default function DentalDiagnosis() {
             </div>
 
             <div className="max-w-4xl mx-auto relative z-10">
+                <MobileBackButton />
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-slate-900 mb-2">تشخيص الأسنان</h1>
                     <p className="text-slate-500 mb-6">الخطوة {state.step} من 4</p>

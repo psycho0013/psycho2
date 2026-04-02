@@ -3,6 +3,7 @@
     "short_name": "SmartTashkhees",
     "description": "نظام تشخيص طبي ذكي يعتمد على الذكاء الاصطناعي",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#10b981",
@@ -31,10 +32,10 @@
     "screenshots": [],
     "shortcuts": [
         {
-            "name": "التشخيص الذكي",
+            "name": "أدوات التشخيص",
             "short_name": "تشخيص",
             "description": "ابدأ التشخيص الآن",
-            "url": "/diagnosis",
+            "url": "/services",
             "icons": [
                 {
                     "src": "/po.png",
@@ -54,5 +55,8 @@
                 }
             ]
         }
+    ],
+    "permissions": [
+        "notifications"
     ]
 }

@@ -9,6 +9,7 @@ import StepReview from '@/components/diagnosis/StepReview';
 import DiagnosisResult from '@/components/diagnosis/DiagnosisResult';
 import { authService } from '@/services/authService';
 import { profileService } from '@/services/profileService';
+import MobileBackButton from '@/components/ui/MobileBackButton';
 
 export type Gender = 'male' | 'female';
 
@@ -140,6 +141,7 @@ const Diagnosis = () => {
     return (
         <div className="min-h-screen bg-slate-50 p-6 lg:p-12" ref={containerRef}>
             <div className="max-w-4xl mx-auto">
+                <MobileBackButton />
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-slate-900">مساعد التشخيص</h1>
                     <p className="text-slate-500">الخطوة {state.step} من 6</p>
