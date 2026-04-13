@@ -8,7 +8,7 @@ interface FeedbackWidgetProps {
     confidenceScore?: number;
 }
 
-const emojis = ['😞', '😕', '😐', '🙂', '🤩'];
+
 const labels = ['سيئة', 'ضعيفة', 'مقبولة', 'جيدة', 'ممتازة'];
 
 const FeedbackWidget = ({ diseaseName, confidenceScore }: FeedbackWidgetProps) => {
@@ -80,23 +80,8 @@ const FeedbackWidget = ({ diseaseName, confidenceScore }: FeedbackWidgetProps) =
                             <p className="text-sm text-slate-500">قيّم دقة النتيجة لتساعدنا في التحسين</p>
                         </div>
 
-                        {/* Emoji + Stars Row */}
+                        {/* Stars Row */}
                         <div className="flex flex-col items-center gap-4 mb-6">
-                            {/* Emoji Display */}
-                            <AnimatePresence mode="wait">
-                                {activeRating > 0 && (
-                                    <motion.div
-                                        key={activeRating}
-                                        initial={{ scale: 0, y: 10 }}
-                                        animate={{ scale: 1, y: 0 }}
-                                        exit={{ scale: 0, y: -10 }}
-                                        className="text-5xl"
-                                    >
-                                        {emojis[activeRating - 1]}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
                             {/* Stars */}
                             <div className="flex gap-2" dir="ltr">
                                 {[1, 2, 3, 4, 5].map(star => (
