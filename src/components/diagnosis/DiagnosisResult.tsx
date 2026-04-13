@@ -8,6 +8,7 @@ import DbManager from '@/services/dbManager';
 import StatisticsManager from '@/services/statisticsManager';
 import { authService } from '@/services/authService';
 import { profileService } from '@/services/profileService';
+import FeedbackWidget from './FeedbackWidget';
 
 interface Props {
     state: DiagnosisState;
@@ -429,6 +430,14 @@ const DiagnosisResult = ({ state }: Props) => {
                         حاول مرة أخرى
                     </button>
                 </div>
+            )}
+
+            {/* نظام التقييم 🌟 */}
+            {result && (
+                <FeedbackWidget 
+                    diseaseName={result.name}
+                    confidenceScore={confidenceScore}
+                />
             )}
 
             {/* Disclaimer */}

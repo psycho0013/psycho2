@@ -32,9 +32,13 @@ import DiagnosisSettings from './pages/admin/DiagnosisSettings';
 import DentalSymptomsManager from './pages/admin/DentalSymptomsManager';
 import DentalProblemsManager from './pages/admin/DentalProblemsManager';
 import DentistsManager from './pages/admin/DentistsManager';
+import NotificationsManager from './pages/admin/NotificationsManager';
+import FeedbackManager from './pages/admin/FeedbackManager';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import DentalDiagnosis from './pages/DentalDiagnosis';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import OneSignal from 'react-onesignal';
 import { useEffect } from 'react';
@@ -82,6 +86,8 @@ function App() {
               <Route path="scanners" element={<MedicalScanners />} />
               <Route path="contact" element={<Contact />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
             </Route>
 
             {/* Admin Routes - Protected by EncryptionPrompt */}
@@ -101,6 +107,8 @@ function App() {
               <Route path="dental-symptoms" element={<DentalSymptomsManager />} />
               <Route path="dental-problems" element={<DentalProblemsManager />} />
               <Route path="dentists" element={<DentistsManager />} />
+              <Route path="notifications" element={<NotificationsManager />} />
+              <Route path="feedback" element={<FeedbackManager />} />
               <Route path="data" element={<DataManager />} />
               <Route path="settings" element={<Settings />} />
             </Route>

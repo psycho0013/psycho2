@@ -83,6 +83,12 @@ const Footer = () => {
                             <li>
                                 <Link to="/directory" className="hover:text-primary transition-colors">الدليل الطبي</Link>
                             </li>
+                            <li className="pt-2 mt-2 border-t border-slate-800">
+                                <Link to="/privacy" className="hover:text-primary transition-colors">سياسة الخصوصية</Link>
+                            </li>
+                            <li>
+                                <Link to="/terms" className="hover:text-primary transition-colors">شروط الاستخدام</Link>
+                            </li>
                         </ul>
                     </div>
 

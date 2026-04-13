@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, FileText, LogOut, ExternalLink, Settings,
     BookOpen, Pill, Building2, Database, Activity, MessageSquare,
-    Brain, Smile, Stethoscope, UserCheck, Home, HeartPulse, Menu, X
+    Brain, Smile, Stethoscope, UserCheck, Home, HeartPulse, Menu, X, Bell, Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -43,6 +43,8 @@ const navSections = [
         items: [
             { path: '/admin/directory', label: 'الدليل الطبي', icon: Building2 },
             { path: '/admin/messages', label: 'الرسائل', icon: MessageSquare },
+            { path: '/admin/notifications', label: 'الإشعارات', icon: Bell },
+            { path: '/admin/feedback', label: 'التقييمات', icon: Star },
             { path: '/admin/data', label: 'البيانات', icon: Database },
             { path: '/admin/settings', label: 'الإعدادات', icon: Settings },
         ]

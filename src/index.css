@@ -69,15 +69,52 @@
 
   @keyframes float {
     0% {
-      transform: translateY(0px);
+      transform: translateY(0px) rotate(0deg);
     }
 
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-10px) rotate(2deg);
     }
 
     100% {
-      transform: translateY(0px);
+      transform: translateY(0px) rotate(0deg);
+    }
+  }
+
+  .glow-text {
+    text-shadow: 0 0 40px rgba(14, 165, 233, 0.4);
+  }
+
+  .glow-border {
+    position: relative;
+  }
+  
+  .glow-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, var(--primary), var(--accent), transparent, transparent);
+    background-size: 400%;
+    z-index: -1;
+    border-radius: inherit;
+    animation: glow-spin 4s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .glow-border:hover::before {
+    opacity: 0.5;
+  }
+  
+  @keyframes glow-spin {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
     }
   }
 }

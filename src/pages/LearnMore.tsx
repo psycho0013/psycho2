@@ -101,7 +101,7 @@ const LearnMore = () => {
                         className="relative rounded-[3rem] p-1 bg-gradient-to-r from-primary via-purple-400 to-blue-400 shadow-2xl shadow-primary/20"
                     >
                         <div className="bg-white rounded-[2.8rem] p-10 md:p-16 text-center relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10" />
+                            <div className="absolute top-0 left-0 w-full h-full opacity-10" />
 
                             <div className="relative z-10">
                                 <span className="inline-block px-4 py-2 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-sm font-bold mb-6">

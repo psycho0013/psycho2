@@ -50,7 +50,7 @@ const AdminLoginModal = ({ isOpen, onClose }: AdminLoginModalProps) => {
                         >
                             {/* Decorative Header Background */}
                             <div className="h-32 bg-gradient-to-br from-red-500 to-rose-600 relative overflow-hidden flex items-center justify-center">
-                                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                                {/* تمت إزالة noise.svg المعطوب هنا لتنظيف الكونسول */}
                                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
                                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-black/10 rounded-full blur-2xl"></div>
 
