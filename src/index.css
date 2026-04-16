@@ -117,4 +117,40 @@
       background-position: 0% 50%;
     }
   }
+
+  /* --- Medical Directory Map --- */
+  .custom-marker,
+  .user-marker {
+    background: none !important;
+    border: none !important;
+  }
+
+  .leaflet-popup-content-wrapper {
+    @apply rounded-2xl shadow-xl border border-slate-100;
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .leaflet-popup-tip {
+    @apply shadow-none;
+  }
+
+  .leaflet-container {
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .safe-area-top {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+
+  .safe-area-bottom {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

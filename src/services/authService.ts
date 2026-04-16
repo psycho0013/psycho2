@@ -10,6 +10,7 @@ export const authService = {
                 data: {
                     full_name: fullName,
                 },
+                emailRedirectTo: `${window.location.origin}/auth`,
             },
         });
         return { data, error };
@@ -29,7 +30,7 @@ export const authService = {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.origin,
+                redirectTo: `${window.location.origin}/auth`,
                 queryParams: {
                     access_type: 'offline',
                     prompt: 'consent',

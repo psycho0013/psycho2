@@ -9,5 +9,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(
     supabaseUrl || '',
-    supabaseAnonKey || ''
+    supabaseAnonKey || '',
+    {
+        auth: {
+            persistSession: true,        // حفظ الجلسة في localStorage
+            detectSessionInUrl: true,     // التقاط tokens من الـ URL بعد OAuth redirect
+            autoRefreshToken: true,       // تجديد الـ token تلقائياً
+            storageKey: 'smarttashkhees-auth', // مفتاح ثابت لتخزين الجلسة
+            flowType: 'pkce',             // أكثر أماناً ومتوافق مع الموبايل/PWA
+        },
+    }
 );

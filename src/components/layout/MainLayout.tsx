@@ -8,34 +8,37 @@ import NotificationBell from '../NotificationBell';
 
 const MainLayout = () => {
     const location = useLocation();
+    const isFullScreenPage = location.pathname === '/directory';
 
     return (
         <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden">
-            <ScrollProgress />
-            <Sidebar />
+            {!isFullScreenPage && <ScrollProgress />}
+            {!isFullScreenPage && <Sidebar />}
 
             {/* Floating Notification Bell - Top Left (RTL) */}
-            <div className="fixed top-5 left-5 z-50">
-                <div className="bg-white/80 backdrop-blur-xl rounded-full shadow-lg shadow-slate-200/50 border border-white/60 p-1">
-                    <NotificationBell iconSize={22} />
+            {!isFullScreenPage && (
+                <div className="fixed top-5 left-5 z-50">
+                    <div className="bg-white/80 backdrop-blur-xl rounded-full shadow-lg shadow-slate-200/50 border border-white/60 p-1">
+                        <NotificationBell iconSize={22} />
+                    </div>
                 </div>
-            </div>
+            )}
 
-            <main className="min-h-screen w-full flex flex-col relative pb-20 lg:pb-0">
+            <main className={`min-h-screen w-full flex flex-col relative ${isFullScreenPage ? '' : 'pb-20 lg:pb-0'}`}>
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}
-                        initial={{ opacity: 0, y: 15, filter: 'blur(5px)' }}
+                        initial={{ opacity: 0, y: isFullScreenPage ? 0 : 15, filter: isFullScreenPage ? 'none' : 'blur(5px)' }}
                         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                        exit={{ opacity: 0, y: -15, filter: 'blur(5px)' }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        exit={{ opacity: 0, y: isFullScreenPage ? 0 : -15, filter: isFullScreenPage ? 'none' : 'blur(5px)' }}
+                        transition={{ duration: isFullScreenPage ? 0.15 : 0.3, ease: "easeOut" }}
                         className="flex-1 flex flex-col"
                     >
                         <Outlet />
                     </motion.div>
                 </AnimatePresence>
-                <Footer />
-                <BottomNav />
+                {!isFullScreenPage && <Footer />}
+                {!isFullScreenPage && <BottomNav />}
             </main>
         </div>
     );

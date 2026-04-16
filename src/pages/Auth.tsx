@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/Toast';
 import './Auth.css';
 
@@ -12,7 +13,42 @@ const Auth = () => {
     const [fullName, setFullName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [checkingSession, setCheckingSession] = useState(true);
     const navigate = useNavigate();
+
+    // ═══════════════════════════════════════════════════════════════════
+    // التحقق من الجلسة عند تحميل الصفحة (مهم جداً للموبايل بعد OAuth)
+    // ═══════════════════════════════════════════════════════════════════
+    useEffect(() => {
+        // 1. التحقق إذا المستخدم مسجل دخول بالفعل
+        const checkExistingSession = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    console.log('✅ Active session found, redirecting...');
+                    navigate('/', { replace: true });
+                    return;
+                }
+            } catch (err) {
+                console.error('Session check error:', err);
+            } finally {
+                setCheckingSession(false);
+            }
+        };
+
+        checkExistingSession();
+
+        // 2. الاستماع لتغير حالة المصادقة (يلتقط OAuth callback)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            console.log('🔑 Auth event:', event);
+            if (event === 'SIGNED_IN' && session?.user) {
+                console.log('✅ User signed in via:', event);
+                navigate('/', { replace: true });
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [navigate]);
 
     const handleRegisterClick = () => {
         setIsPanelActive(true);
@@ -27,11 +63,12 @@ const Auth = () => {
     const handleGoogleLogin = async () => {
         try {
             setLoading(true);
+            setError(null);
             const { error } = await authService.signInWithGoogle();
             if (error) throw error;
+            // OAuth سيعيد التوجيه تلقائياً — لا حاجة لـ navigate هنا
         } catch (err: any) {
             setError(err.message);
-        } finally {
             setLoading(false);
         }
     };
@@ -44,9 +81,8 @@ const Auth = () => {
             const { data, error } = await authService.signUpWithEmail(email, password, fullName);
             if (error) throw error;
             if (data.user) {
-                // Usually requires email confirmation, inform user or navigate
                 toast.info('Check your email for confirmation link!');
-                setIsPanelActive(false); // Switch to login view
+                setIsPanelActive(false);
             }
         } catch (err: any) {
             setError(err.message);
@@ -63,7 +99,8 @@ const Auth = () => {
             const { data, error } = await authService.signInWithEmail(email, password);
             if (error) throw error;
             if (data.user) {
-                navigate('/');
+                // onAuthStateChange سيلتقط هذا ويعيد التوجيه
+                navigate('/', { replace: true });
             }
         } catch (err: any) {
             setError(err.message);
@@ -71,6 +108,15 @@ const Auth = () => {
             setLoading(false);
         }
     };
+
+    // شاشة تحميل أثناء التحقق من الجلسة
+    if (checkingSession) {
+        return (
+            <div className="auth-page-wrapper flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     return (
         <div dir="ltr" className="auth-page-wrapper">
