@@ -1,14 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Activity, BookOpen, Building2, Menu, X, Info, Phone, LogIn, ChevronRight, UserCircle2 } from 'lucide-react';
+import { Home, Activity, BookOpen, Building2, Menu, X, Info, Phone, LogIn, LogOut, ChevronRight, UserCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminLoginModal from '../auth/AdminLoginModal';
+import { authService } from '@/services/authService';
+import { supabase } from '@/lib/supabase';
+import type { User } from '@supabase/supabase-js';
+import type { LucideIcon } from 'lucide-react';
+
+interface MoreItem {
+    label: string;
+    icon: LucideIcon;
+    color?: string;
+    bg?: string;
+    path?: string;
+    isAction?: boolean;
+    action?: () => void;
+}
 
 const BottomNav = () => {
     const [isMoreOpen, setIsMoreOpen] = useState(false);
     const [isAdminOpen, setIsAdminOpen] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        authService.getCurrentUser().then(setUser);
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     const mainNavItems = [
         { path: '/', label: 'الرئيسية', icon: Home },
@@ -17,16 +42,39 @@ const BottomNav = () => {
         { path: '/directory', label: 'دليل طبي', icon: Building2 },
     ];
 
-    const moreItems = [
+    const moreItems: MoreItem[] = [
         { path: '/about', label: 'عن المنصة', icon: Info },
         { path: '/contact', label: 'اتصل بنا', icon: Phone },
-        { 
-            path: '/auth', 
-            label: 'تسجيل الدخول', 
-            icon: UserCircle2,
-            color: 'text-cyan-600',
-            bg: 'bg-cyan-50'
-        },
+        // Auth items - dynamic based on user state
+        ...(user ? [
+            { 
+                path: '/profile', 
+                label: 'الملف الشخصي', 
+                icon: UserCircle2,
+                color: 'text-emerald-600',
+                bg: 'bg-emerald-50'
+            },
+            { 
+                isAction: true, 
+                action: async () => {
+                    await authService.signOut();
+                    setIsMoreOpen(false);
+                    navigate('/');
+                }, 
+                label: 'تسجيل خروج', 
+                icon: LogOut,
+                color: 'text-rose-600',
+                bg: 'bg-rose-50'
+            }
+        ] : [
+            { 
+                path: '/auth', 
+                label: 'تسجيل الدخول', 
+                icon: UserCircle2,
+                color: 'text-cyan-600',
+                bg: 'bg-cyan-50'
+            }
+        ]),
         { 
             isAction: true, 
             action: () => {
@@ -125,7 +173,7 @@ const BottomNav = () => {
                                 <div className="space-y-3">
                                     {moreItems.map((item, idx) => {
                                         const Icon = item.icon;
-                                        if (item.isAction) {
+                                        if (item.isAction && item.action) {
                                             return (
                                                 <button
                                                     key={idx}
