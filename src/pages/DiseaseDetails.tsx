@@ -1,8 +1,9 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Activity, Shield, AlertTriangle, Stethoscope, BookOpen, ChevronLeft } from 'lucide-react';
+import { ArrowRight, Activity, Shield, AlertTriangle, Stethoscope, BookOpen, ChevronLeft, HeartPulse, Brain, Wind, Eye, Ear, Bone, Smile, Thermometer, Droplets, Info } from 'lucide-react';
 import type { Disease, Treatment, Symptom } from '@/types/medical';
+import { symptomCategories } from '@/types/medical';
 import DbManager from '@/services/dbManager';
 
 
@@ -82,11 +83,108 @@ const DiseaseDetails = () => {
                         <p className="text-xl text-rose-50 max-w-3xl leading-relaxed font-medium">
                             {disease.description}
                         </p>
+                        
+                        {/* ════════════ 1. المؤشرات البصرية السريعة (Visual Badges) ════════════ */}
+                        <div className="flex flex-wrap gap-4 mt-8">
+                            {/* Critical Badge */}
+                            {disease.symptoms.some(sId => allSymptoms.find(s => s.id === sId)?.is_critical) ? (
+                                <div className="flex items-center gap-2 bg-red-500/20 border border-red-300/30 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg shadow-red-900/20">
+                                    <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></div>
+                                    <span className="text-white font-bold text-sm tracking-wide">يحتوي أعراض حرجة</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-300/30 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg shadow-emerald-900/20">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                                    <span className="text-white font-bold text-sm tracking-wide">لا توجد أعراض طارئة مسجلة</span>
+                                </div>
+                            )}
+
+                            {/* Symptoms Count Badge */}
+                            <div className="flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg">
+                                <Activity size={16} className="text-rose-200" />
+                                <span className="text-white font-bold text-sm">{disease.symptoms.length} أعراض مرتبطة</span>
+                            </div>
+
+                            {/* Affected Systems Count Badge */}
+                            <div className="flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg">
+                                <Shield size={16} className="text-rose-200" />
+                                <span className="text-white font-bold text-sm">
+                                    يؤثر على {new Set(disease.symptoms.map(sId => allSymptoms.find(s => s.id === sId)?.category).filter(Boolean)).size} أجهزة حيوية
+                                </span>
+                            </div>
+                        </div>
+
                     </motion.div>
                 </div>
             </div>
 
             <div className="max-w-5xl mx-auto px-6 -mt-16 relative z-20 space-y-8">
+                
+                {/* ════════════ 2. الأجهزة المتأثرة (Affected Systems - Body Map) ════════════ */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="glass-panel p-8 bg-gradient-to-br from-white/90 to-slate-50/90 border-slate-200 overflow-hidden relative"
+                >
+                    {/* Decorative Background */}
+                    <div className="absolute -left-10 -top-10 w-40 h-40 bg-rose-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                    <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <h3 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-3 relative z-10">
+                        <div className="w-10 h-10 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center shadow-inner border border-slate-200">
+                            <Activity size={20} />
+                        </div>
+                        الأجهزة العضوية المتأثرة
+                    </h3>
+                    <p className="text-slate-500 text-sm mb-6 relative z-10 font-medium">الأنظمة والأعضاء الحيوية التي يستهدفها هذا المرض بناءً على الأعراض المصاحبة.</p>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 relative z-10">
+                        {/* Calculate unique affected systems */}
+                        {Array.from(new Set(disease.symptoms.map(sId => {
+                            const sym = allSymptoms.find(s => s.id === sId);
+                            return sym ? sym.category : null;
+                        }).filter(Boolean))).map((categoryId, index) => {
+                            const category = symptomCategories.find(c => c.id === categoryId);
+                            if (!category) return null;
+
+                            // Map category to aesthetic icons and colors
+                            let Icon = Info;
+                            let colorClass = 'text-slate-500 bg-slate-50 border-slate-200';
+                            let glowClass = 'group-hover:shadow-slate-500/30';
+
+                            switch(category.id) {
+                                case 'Cardiovascular': Icon = HeartPulse; colorClass = 'text-rose-500 bg-rose-50 border-rose-200'; glowClass = 'group-hover:shadow-rose-500/30'; break;
+                                case 'Neurological': Icon = Brain; colorClass = 'text-purple-500 bg-purple-50 border-purple-200'; glowClass = 'group-hover:shadow-purple-500/30'; break;
+                                case 'Respiratory': Icon = Wind; colorClass = 'text-sky-500 bg-sky-50 border-sky-200'; glowClass = 'group-hover:shadow-sky-500/30'; break;
+                                case 'Ophthalmological': Icon = Eye; colorClass = 'text-emerald-500 bg-emerald-50 border-emerald-200'; glowClass = 'group-hover:shadow-emerald-500/30'; break;
+                                case 'ENT': Icon = Ear; colorClass = 'text-amber-500 bg-amber-50 border-amber-200'; glowClass = 'group-hover:shadow-amber-500/30'; break;
+                                case 'Musculoskeletal': Icon = Bone; colorClass = 'text-orange-500 bg-orange-50 border-orange-200'; glowClass = 'group-hover:shadow-orange-500/30'; break;
+                                case 'Psychological': Icon = Smile; colorClass = 'text-indigo-500 bg-indigo-50 border-indigo-200'; glowClass = 'group-hover:shadow-indigo-500/30'; break;
+                                case 'General': Icon = Thermometer; colorClass = 'text-teal-500 bg-teal-50 border-teal-200'; glowClass = 'group-hover:shadow-teal-500/30'; break;
+                                case 'Hematological': Icon = Droplets; colorClass = 'text-red-600 bg-red-50 border-red-200'; glowClass = 'group-hover:shadow-red-600/30'; break;
+                                default: Icon = Activity; colorClass = 'text-blue-500 bg-blue-50 border-blue-200'; glowClass = 'group-hover:shadow-blue-500/30'; break;
+                            }
+
+                            return (
+                                <motion.div 
+                                    key={category.id}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 hover:-translate-y-1 bg-white hover:bg-slate-50 cursor-default shadow-sm ${glowClass}`}
+                                >
+                                    <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 ${colorClass}`}>
+                                        <Icon size={20} />
+                                    </div>
+                                    <span className="font-bold text-sm text-slate-700 group-hover:text-slate-900 transition-colors leading-tight">
+                                        {category.name}
+                                    </span>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </motion.div>
                 {/* Key Info Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Symptoms */}

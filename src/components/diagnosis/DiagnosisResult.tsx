@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { CheckCircle, AlertTriangle, RefreshCw, Pill, ArrowRight, Phone } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle, AlertTriangle, RefreshCw, Pill, ArrowRight, Phone, Clock, FileText, AlertCircle, X, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { DiagnosisState } from '../../pages/Diagnosis';
 import type { Disease, Treatment } from '@/types/medical';
@@ -26,6 +26,7 @@ const DiagnosisResult = ({ state }: Props) => {
     const [isEmergency, setIsEmergency] = useState(false);
     const [confidenceScore, setConfidenceScore] = useState<number>(0);
     const [treatmentsList, setTreatmentsList] = useState<Treatment[]>([]);
+    const [selectedTreatment, setSelectedTreatment] = useState<Treatment | null>(null); // For Modal
     const hasAnalyzed = useRef(false);
     const hasSaved = useRef(false); // Prevent duplicate saves
 
@@ -342,17 +343,18 @@ const DiagnosisResult = ({ state }: Props) => {
                                         return (
                                             <li
                                                 key={tId}
-                                                className={`flex items-start gap-3 p-3 rounded-lg ${isContraindicated
-                                                    ? 'bg-red-50 border border-red-200'
-                                                    : 'text-slate-700'
-                                                    }`}
+                                                onClick={() => !isContraindicated && setSelectedTreatment(treatment)}
+                                                className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-300 ${
+                                                    isContraindicated
+                                                        ? 'bg-red-50 border border-red-200'
+                                                        : 'text-slate-700 bg-white border border-slate-100 hover:border-primary/30 hover:shadow-md hover:bg-slate-50 cursor-pointer'
+                                                }`}
                                             >
-                                                <span className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${isContraindicated ? 'bg-red-500' : 'bg-primary'
-                                                    }`} />
+                                                <span className={`w-1.5 h-1.5 rounded-full mt-2.5 shrink-0 transition-transform ${isContraindicated ? 'bg-red-500' : 'bg-primary group-hover:scale-150'}`} />
                                                 <div className="flex-1">
-                                                    <span className={`font-medium block ${isContraindicated ? 'text-red-700 line-through' : ''}`}>
-                                                        {treatment.name}
-                                                        {isContraindicated && ' ❌'}
+                                                    <span className={`font-bold block flex justify-between items-center ${isContraindicated ? 'text-red-700 line-through' : 'text-slate-800'}`}>
+                                                        <span>{treatment.name} {isContraindicated && ' ❌'}</span>
+                                                        {!isContraindicated && <ChevronLeft size={16} className="text-slate-400 group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100" />}
                                                     </span>
                                                     {!isContraindicated && (
                                                         <span className="text-sm text-slate-500">{treatment.dosage}</span>
@@ -440,7 +442,7 @@ const DiagnosisResult = ({ state }: Props) => {
                 />
             )}
 
-            {/* Disclaimer */}
+            {/* إخلاء مسؤولية طبي */}
             <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl flex gap-4 items-start">
                 <AlertTriangle className="text-blue-500 shrink-0 mt-1" />
                 <div>
@@ -451,6 +453,120 @@ const DiagnosisResult = ({ state }: Props) => {
                     </p>
                 </div>
             </div>
+
+            {/* ════════════ نافذة تفاصيل العلاج (Modal) ════════════ */}
+            <AnimatePresence>
+                {selectedTreatment && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm"
+                        onClick={() => setSelectedTreatment(null)}
+                    >
+                        <motion.div 
+                            initial={{ y: 50, opacity: 0, scale: 0.95 }}
+                            animate={{ y: 0, opacity: 1, scale: 1 }}
+                            exit={{ y: 20, opacity: 0, scale: 0.95 }}
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                            className="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden relative"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            {/* Modal Header */}
+                            <div className="bg-gradient-to-l from-teal-500 to-cyan-600 p-6 sm:p-8 text-white relative shrink-0">
+                                <button 
+                                    onClick={() => setSelectedTreatment(null)}
+                                    className="absolute top-4 left-4 p-2 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-md transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <Pill className="text-cyan-100" />
+                                    <span className="text-cyan-100 text-sm font-bold uppercase">{selectedTreatment.type}</span>
+                                </div>
+                                <h2 className="text-2xl sm:text-3xl font-bold">{selectedTreatment.name}</h2>
+                                {selectedTreatment.dosage && (
+                                    <div className="mt-4 inline-block px-4 py-1.5 bg-white/20 rounded-lg text-sm font-bold backdrop-blur-md">
+                                        الجرعة: {selectedTreatment.dosage}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
+                                <p className="text-lg text-slate-700 leading-relaxed font-medium">
+                                    {selectedTreatment.description}
+                                </p>
+
+                                {selectedTreatment.instructions && (
+                                    <div className="bg-cyan-50/50 p-5 rounded-2xl border border-cyan-100">
+                                        <h4 className="flex items-center gap-2 font-bold text-cyan-800 mb-2">
+                                            <FileText size={18} /> تعليمات الاستخدام
+                                        </h4>
+                                        <p className="text-slate-600 leading-relaxed text-sm">
+                                            {selectedTreatment.instructions}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {selectedTreatment.side_effects && selectedTreatment.side_effects.length > 0 && (
+                                        <div className="bg-rose-50/50 p-5 rounded-2xl border border-rose-100">
+                                            <h4 className="flex items-center gap-2 font-bold text-rose-800 mb-3">
+                                                <AlertCircle size={18} /> آثار جانبية
+                                            </h4>
+                                            <ul className="space-y-2">
+                                                {selectedTreatment.side_effects.map((effect, idx) => (
+                                                    <li key={idx} className="flex gap-2 text-sm text-rose-700/80">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
+                                                        {effect}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {selectedTreatment.precautions && selectedTreatment.precautions.length > 0 && (
+                                        <div className="bg-amber-50/50 p-5 rounded-2xl border border-amber-100">
+                                            <h4 className="flex items-center gap-2 font-bold text-amber-800 mb-3">
+                                                <AlertTriangle size={18} /> احتياطات
+                                            </h4>
+                                            <ul className="space-y-2">
+                                                {selectedTreatment.precautions.map((prec, idx) => (
+                                                    <li key={idx} className="flex gap-2 text-sm text-amber-700/80">
+                                                        <span className="text-amber-500 mt-0.5">•</span>
+                                                        {prec}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {selectedTreatment.duration && (
+                                    <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                        <Clock className="text-slate-400" />
+                                        <div>
+                                            <div className="text-xs text-slate-500 font-bold">مدة العلاج الموصى بها</div>
+                                            <div className="text-slate-800 font-medium">{selectedTreatment.duration}</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* Modal Footer */}
+                            <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
+                                <button 
+                                    onClick={() => setSelectedTreatment(null)}
+                                    className="px-6 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition-colors"
+                                >
+                                    رجوع للتشخيص
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Pill, Clock, AlertCircle, FileText, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowRight, Pill, Clock, AlertCircle, FileText, CheckCircle, Baby, Users, ShieldAlert } from 'lucide-react';
 import type { Treatment } from '@/types/medical';
 import DbManager from '@/services/dbManager';
 
@@ -97,6 +97,55 @@ const TreatmentDetails = () => {
                     <p className="text-xl text-slate-700 leading-relaxed font-medium">
                         {treatment.description}
                     </p>
+
+                    {/* ════════════ 1. المؤشرات البصرية السريعة (Visual Badges) ════════════ */}
+                    <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t border-slate-100">
+                        {/* Pregnancy/Breastfeeding Safety */}
+                        {(treatment.contraindicated_pregnancy || treatment.contraindicated_breastfeeding) ? (
+                            <div className="flex items-center gap-2 bg-red-50 text-red-700 border border-red-200 px-4 py-2.5 rounded-2xl">
+                                <Baby size={18} className="text-red-500" />
+                                <span className="font-bold text-sm tracking-wide">
+                                    {treatment.contraindicated_pregnancy && treatment.contraindicated_breastfeeding 
+                                        ? "غير آمن للحوامل والمرضعات"
+                                        : treatment.contraindicated_pregnancy 
+                                        ? "غير آمن للحوامل"
+                                        : "غير آمن للمرضعات"}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2.5 rounded-2xl">
+                                <Baby size={18} className="text-emerald-500" />
+                                <span className="font-bold text-sm tracking-wide">لا توجد موانع حمل مسجلة</span>
+                            </div>
+                        )}
+
+                        {/* Age Restriction */}
+                        {(treatment.age_restriction_min || treatment.age_restriction_max) ? (
+                            <div className="flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2.5 rounded-2xl">
+                                <Users size={18} className="text-amber-500" />
+                                <span className="font-bold text-sm tracking-wide">
+                                    {treatment.age_restriction_min && !treatment.age_restriction_max && `للاعمار فوق ${treatment.age_restriction_min} سنة`}
+                                    {!treatment.age_restriction_min && treatment.age_restriction_max && `للاعمار تحت ${treatment.age_restriction_max} سنة`}
+                                    {treatment.age_restriction_min && treatment.age_restriction_max && `للاعمار من ${treatment.age_restriction_min} إلى ${treatment.age_restriction_max} سنة`}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-600 border border-slate-200 px-4 py-2.5 rounded-2xl">
+                                <Users size={18} className="text-slate-400" />
+                                <span className="font-bold text-sm tracking-wide">مناسب لجميع الأعمار (ما لم يذكر الطبيب خلاف ذلك)</span>
+                            </div>
+                        )}
+
+                        {/* Chronic Diseases Warning */}
+                        {treatment.contraindicated_chronic_diseases && treatment.contraindicated_chronic_diseases.length > 0 && (
+                            <div className="flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200 px-4 py-2.5 rounded-2xl">
+                                <ShieldAlert size={18} className="text-rose-500" />
+                                <span className="font-bold text-sm tracking-wide">
+                                    لا يناسب مرضى: {treatment.contraindicated_chronic_diseases.join('، ')}
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </motion.div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
