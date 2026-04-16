@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Navigation, Loader2, Hospital, Pill, HeartPulse, X, Phone, Clock, ExternalLink, ChevronDown, LocateFixed, AlertCircle, Layers } from 'lucide-react';
+import { MapPin, Navigation, Loader2, Hospital, Pill, HeartPulse, X, Phone, Clock, ExternalLink, ChevronDown, LocateFixed, AlertCircle, Layers, ArrowRight } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -153,6 +154,7 @@ const FlyToLocation = ({ position }: { position: [number, number] | null }) => {
 // Main Component
 // ═══════════════════════════════════════════════════════════════════════════
 const MedicalDirectory = () => {
+    const navigate = useNavigate();
     const [pois, setPois] = useState<POI[]>([]);
     const [filtered, setFiltered] = useState<POI[]>([]);
     const [filter, setFilter] = useState<FilterType>('all');
@@ -296,6 +298,15 @@ const MedicalDirectory = () => {
                         >
                             <LocateFixed size={18} />
                         </button>
+
+                        {/* Back Button */}
+                        <button
+                            onClick={() => navigate('/')}
+                            className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition-all active:scale-95"
+                            title="رجوع"
+                        >
+                            <ArrowRight size={18} />
+                        </button>
                     </div>
                 </div>
 
@@ -351,7 +362,8 @@ const MedicalDirectory = () => {
                     attributionControl={false}
                 >
                     <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png"
+                        maxZoom={19}
                     />
                     <MapEventHandler onBoundsChange={handleBoundsChange} />
                     <FlyToLocation position={flyTo} />

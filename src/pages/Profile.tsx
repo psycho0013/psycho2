@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Activity, Calendar, Droplet, Ruler, Weight, Save, Clock, FileText, ChevronDown, AlertTriangle, Stethoscope } from 'lucide-react';
 import { profileService, type Profile as UserProfile, type MedicalHistory } from '../services/profileService';
 import { authService } from '../services/authService';
-import { cn } from '@/lib/utils'; // Assuming you have this utility
+import { supabase } from '@/lib/supabase';
+import { cn } from '@/lib/utils';
 
 const Profile = () => {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -31,8 +34,13 @@ const Profile = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const user = await authService.getCurrentUser();
-            if (!user) return; // Should redirect to login
+            // استخدام getSession بدلاً من getUser للتوافق مع الموبايل
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session?.user) {
+                navigate('/auth', { replace: true });
+                return;
+            }
+            const user = session.user;
 
             const { data: profileData } = await profileService.getProfile(user.id);
             const { data: historyData } = await profileService.getMedicalHistory(user.id);

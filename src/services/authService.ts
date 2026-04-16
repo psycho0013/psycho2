@@ -46,9 +46,9 @@ export const authService = {
         return { error };
     },
 
-    // Get Current User
+    // Get Current User (from local session - faster & mobile-friendly)
     getCurrentUser: async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        return user;
+        const { data: { session } } = await supabase.auth.getSession();
+        return session?.user ?? null;
     },
 };
